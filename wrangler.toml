@@ -1,0 +1,12 @@
+name = "entradas-qr-condesa"
+main = "workers/api/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "entradas-qr-db"
+database_id = "1884e331-876c-4e12-9271-739474c41814"
+
+[vars]
+QR_BASE_URL = "https://entradas-qr-condesa.condesa.workers.dev"

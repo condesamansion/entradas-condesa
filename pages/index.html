@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Condesa</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #333333;
+      --text:   #f1f1f1;
+      --muted:  #888;
+      --border: #4a4a4a;
+      --error:  #e05252;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 400;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Flyer ─────────────────────────────────────────────── */
+    .flyer {
+      width: 100%;
+      height: 62vh;
+      position: relative;
+      background: #1e1e1e;
+      overflow: hidden;
+    }
+
+    @media (min-width: 600px) { .flyer { height: 72vh; } }
+
+    .flyer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .flyer-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 30%,
+        rgba(51,51,51,0.6) 70%,
+        #333333 100%
+      );
+    }
+
+    .flyer-placeholder {
+      width: 100%;
+      height: 28vh;
+      background: #222;
+    }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Event info ─────────────────────────────────────────── */
+    .event-info {
+      padding: 28px 0 28px;
+    }
+
+    .event-date {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .event-name {
+      font-size: clamp(30px, 7vw, 52px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .event-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* ── Divider ────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0 28px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── Ticket cards ───────────────────────────────────────── */
+    .tickets {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+    }
+
+    .ticket-card {
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .ticket-card:last-child { border-bottom: none; }
+
+    .ticket-card.selected { background: rgba(241,241,241,0.04); }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .ticket-name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .ticket-price {
+      font-size: 17px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ticket-beneficios {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .ticket-meta {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .btn-comprar {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      width: 100%;
+      padding: 13px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-comprar:hover { opacity: 0.88; }
+
+    /* ── Purchase form ──────────────────────────────────────── */
+    .form-section {
+      border: 1px solid var(--text);
+      padding: 28px 24px 24px;
+      margin-bottom: 48px;
+    }
+
+    .form-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .form-row .form-group { margin-bottom: 0; }
+
+    .form-group label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .form-group input {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      padding: 11px 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+
+    .form-group input:focus { border-color: var(--text); }
+
+    .tipo-display {
+      border: 1px solid var(--border);
+      padding: 11px 13px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .btn-pagar {
+      width: 100%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 16px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-pagar:hover:not(:disabled) { opacity: 0.88; }
+    .btn-pagar:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-cancelar {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 12px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: color 0.15s;
+    }
+
+    .btn-cancelar:hover { color: var(--text); }
+
+    /* ── Spinner ────────────────────────────────────────────── */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(51,51,51,0.25);
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .spinner-light {
+      border-color: rgba(241,241,241,0.2);
+      border-top-color: var(--text);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Loading screen ─────────────────────────────────────── */
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Próximamente ───────────────────────────────────────── */
+    .pronto {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .pronto-logo { max-width: 160px; width: 55%; }
+
+    .pronto-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .pronto-slogan { max-width: 150px; width: 50%; opacity: 0.35; }
+
+    /* ── Result pages ───────────────────────────────────────── */
+    .result-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+      gap: 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .result-logo { max-width: 100px; margin-bottom: 12px; }
+
+    .result-mark {
+      font-size: 36px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .result-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .result-body {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 340px;
+    }
+
+    .btn-volver {
+      display: inline-block;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: transparent;
+      padding: 12px 28px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      margin-top: 8px;
+      transition: border-color 0.15s, color 0.15s;
+      cursor: pointer;
+    }
+
+    .btn-volver:hover { border-color: var(--text); color: var(--text); }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 36px 0;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .footer img { max-width: 80px; opacity: 0.2; }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+  const S   = { evento: null, tipos: [], tipoSel: null };
+
+  // ── Routing ───────────────────────────────────────────────
+  const p = window.location.pathname;
+  if      (p.includes('/pago/exito'))     renderResult('exito');
+  else if (p.includes('/pago/error'))     renderResult('error');
+  else if (p.includes('/pago/pendiente')) renderResult('pendiente');
+  else { renderLoading(); init(); }
+
+  // ── Init ──────────────────────────────────────────────────
+  async function init() {
+    try {
+      const raw  = await apiFetch('/api/evento-activo');
+      const data = raw.data || raw;
+      S.evento   = data.evento || null;
+      S.tipos    = (data.tipos || []).filter(t => t.visible_publico != 0);
+      if (!S.evento) { renderProximamente(); return; }
+      renderEvento();
+    } catch(e) {
+      renderProximamente();
+    }
+  }
+
+  async function apiFetch(path, body) {
+    const opts = body
+      ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      : { method: 'GET' };
+    const res  = await fetch(API + path, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
+    return data;
+  }
+
+  // ── Loading ───────────────────────────────────────────────
+  function renderLoading() {
+    document.getElementById('app').innerHTML =
+      `<div class="loading-screen"><div class="spinner spinner-light" style="width:20px;height:20px;border-width:2px"></div></div>`;
+  }
+
+  // ── Próximamente ──────────────────────────────────────────
+  function renderProximamente() {
+    document.title = 'Condesa';
+    document.getElementById('app').innerHTML = `
+      <div class="pronto">
+        <img class="pronto-logo" src="../logo.svg" alt="Condesa">
+        <div class="pronto-label">Próximamente</div>
+        <img class="pronto-slogan" src="../slogan.svg" alt="">
+      </div>`;
+  }
+
+  // ── Evento ────────────────────────────────────────────────
+  function renderEvento() {
+    const ev = S.evento;
+    document.title = `${ev.nombre} — Condesa`;
+
+    const fechaStr = fmtFecha(ev.fecha);
+    const horaStr  = ev.fecha ? ev.fecha.slice(11,16) : '';
+    const flyerUrl = ev.flyer_url || ev.flyer || '';
+
+    const flyerHtml = flyerUrl
+      ? `<div class="flyer">
+           <img src="${esc(flyerUrl)}" alt="${esc(ev.nombre)}" loading="eager">
+           <div class="flyer-gradient"></div>
+         </div>`
+      : `<div class="flyer-placeholder"></div>`;
+
+    const ticketsHtml = S.tipos.length
+      ? S.tipos.map(ticketCardHtml).join('')
+      : `<div style="padding:24px 0;color:var(--muted);font-size:14px;font-weight:300">
+           Entradas disponibles próximamente.
+         </div>`;
+
+    document.getElementById('app').innerHTML = `
+      ${flyerHtml}
+      <div class="container">
+        <div class="event-info">
+          <div class="event-date">${fechaStr}${horaStr ? ' &middot; ' + horaStr + 'h' : ''}</div>
+          <h1 class="event-name">${esc(ev.nombre)}</h1>
+          ${ev.descripcion ? `<p class="event-desc">${esc(ev.descripcion)}</p>` : ''}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-label">Entradas</div>
+        <div class="tickets" id="tickets-list">
+          ${ticketsHtml}
+        </div>
+
+        <div id="form-wrap"></div>
+
+        <footer class="footer">
+          <img src="../logo.svg" alt="Condesa">
+        </footer>
+      </div>`;
+  }
+
+  function ticketCardHtml(t) {
+    const edad = t.restriccion_edad || t.edad_minima;
+    return `
+      <div class="ticket-card" id="ticket-${t.id}">
+        <div class="ticket-header">
+          <span class="ticket-name">${esc(t.nombre)}</span>
+          <span class="ticket-price">${fmtPrecio(t.precio)}</span>
+        </div>
+        ${t.beneficios ? `<div class="ticket-beneficios">${esc(t.beneficios)}</div>` : ''}
+        ${edad ? `<div class="ticket-meta">+${edad} años</div>` : ''}
+        <button class="btn-comprar" onclick="seleccionarTipo(${t.id})">COMPRAR</button>
+      </div>`;
+  }
+
+  // ── Formulario ────────────────────────────────────────────
+  function seleccionarTipo(tipoId) {
+    S.tipoSel = S.tipos.find(t => t.id === tipoId);
+    if (!S.tipoSel) return;
+    document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById(`ticket-${tipoId}`)?.classList.add('selected');
+    renderForm();
+    setTimeout(() => document.getElementById('form-wrap')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+
+  function renderForm() {
+    const t   = S.tipoSel;
+    const wrap = document.getElementById('form-wrap');
+    wrap.innerHTML = `
+      <div class="form-section">
+        <div class="form-title">Tus datos</div>
+        <form id="compra-form" onsubmit="return false">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre *</label>
+              <input id="f-nombre" type="text" autocomplete="given-name" placeholder="Nombre">
+            </div>
+            <div class="form-group">
+              <label>Apellido *</label>
+              <input id="f-apellido" type="text" autocomplete="family-name" placeholder="Apellido">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email *</label>
+              <input id="f-email" type="email" autocomplete="email" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input id="f-tel" type="tel" autocomplete="tel" placeholder="+54 9 …">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input id="f-ig" type="text" placeholder="@usuario">
+          </div>
+          <div class="form-group">
+            <label>Entrada</label>
+            <div class="tipo-display">${esc(t.nombre)} — ${fmtPrecio(t.precio)}</div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+          <button class="btn-pagar" id="btn-pagar" onclick="submitCompra()">
+            CONFIRMAR Y PAGAR
+          </button>
+          <button type="button" class="btn-cancelar" onclick="cancelarForm()">CANCELAR</button>
+        </form>
+      </div>`;
+  }
+
+  function cancelarForm() {
+    const wrap = document.getElementById('form-wrap');
+    wrap.innerHTML = '';
+    document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('selected'));
+    S.tipoSel = null;
+  }
+
+  async function submitCompra() {
+    const nombre   = document.getElementById('f-nombre').value.trim();
+    const apellido = document.getElementById('f-apellido').value.trim();
+    const email    = document.getElementById('f-email').value.trim();
+    const tel      = document.getElementById('f-tel').value.trim();
+    const ig       = document.getElementById('f-ig').value.trim();
+    const errEl    = document.getElementById('form-error');
+
+    errEl.style.display = 'none';
+
+    if (!nombre || !apellido || !email) {
+      mostrarError('Completá nombre, apellido y email.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      mostrarError('El email no parece válido.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-pagar');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>Procesando…';
+
+    try {
+      const res  = await apiFetch('/api/entradas', {
+        nombre,
+        apellido,
+        mail:            email,
+        telefono:        tel || undefined,
+        instagram:       ig  || undefined,
+        tipo_entrada_id: S.tipoSel.id,
+        evento_id:       S.evento.id,
+      });
+      const link = res?.data?.mp_init_point || res?.mp_init_point;
+      if (link) {
+        window.location.href = link;
+      } else {
+        throw new Error('No se recibió el enlace de pago.');
+      }
+    } catch(e) {
+      btn.disabled = false;
+      btn.innerHTML = 'CONFIRMAR Y PAGAR';
+      mostrarError(e.message || 'Ocurrió un error. Intentá de nuevo.');
+    }
+  }
+
+  function mostrarError(msg) {
+    const el = document.getElementById('form-error');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // ── Resultado de pago ─────────────────────────────────────
+  function renderResult(tipo) {
+    const cfg = {
+      exito: {
+        mark:  '✓',
+        title: '¡Listo!',
+        body:  'Revisá tu mail — te enviamos el QR de entrada.',
+      },
+      error: {
+        mark:  '✕',
+        title: 'Hubo un problema con el pago.',
+        body:  'Podés intentarlo de nuevo o contactarnos.',
+      },
+      pendiente: {
+        mark:  '○',
+        title: 'Pago en proceso.',
+        body:  'Tu pago está siendo procesado. Te avisamos por mail cuando se confirme.',
+      },
+    };
+    const c = cfg[tipo];
+    document.title = `${c.title} — Condesa`;
+    document.getElementById('app').innerHTML = `
+      <div class="result-page">
+        <img class="result-logo" src="../logo.svg" alt="Condesa">
+        <div class="result-mark">${c.mark}</div>
+        <div class="result-title">${c.title}</div>
+        <p class="result-body">${c.body}</p>
+        <a href="/" class="btn-volver">Volver al inicio</a>
+      </div>`;
+  }
+
+  // ── Utils ─────────────────────────────────────────────────
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function fmtFecha(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, d)
+      .toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function fmtPrecio(p) {
+    const n = parseFloat(p);
+    if (!n) return 'GRATIS';
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency', currency: 'ARS', maximumFractionDigits: 0,
+    }).format(n);
+  }
+</script>
+</body>
+</html>

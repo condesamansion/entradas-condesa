@@ -1,0 +1,18 @@
+{
+  "name": "entradas-qr-condesa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute entradas-qr-db --file=workers/api/schema.sql",
+    "db:init:remote": "wrangler d1 execute entradas-qr-db --remote --file=workers/api/schema.sql",
+    "db:studio": "wrangler d1 studio entradas-qr-db"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  }
+}

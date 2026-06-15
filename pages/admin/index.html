@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Condesa</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #333333;
+      --surface:  #2b2b2b;
+      --surface2: #404040;
+      --input-bg: #3c3c3c;
+      --text:     #f1f1f1;
+      --border:   rgba(241,241,241,0.18);
+      --accent:   #ffff00;
+      --success:  #5cb85c;
+      --error:    #d9534f;
+      --warning:  #f0ad4e;
+      --muted:    #999;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .header img { height: 30px; }
+    .header-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-left: 1px solid var(--border);
+      padding-left: 14px;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      padding: 11px 22px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    /* ── MAIN ── */
+    main {
+      padding: 20px 16px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { main { padding: 24px 24px; } }
+
+    /* ── SECTIONS ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .card-meta  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .badge-active    { background: var(--accent); color: #222; }
+    .badge-inactive  { background: var(--surface2); color: var(--muted); }
+    .badge-valida    { background: var(--success); color: #fff; }
+    .badge-usada     { background: #666; color: #fff; }
+    .badge-pendiente { background: var(--warning); color: #222; }
+    .badge-admin     { background: var(--surface2); color: var(--muted); }
+    .badge-cliente   { background: #3a5a8a; color: #fff; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border: 1px solid var(--text);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--text); color: var(--bg); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-primary { background: var(--text); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent); border-color: var(--accent); color: #222; }
+    .btn-accent  { background: var(--accent); border-color: var(--accent); color: #222; }
+    .btn-accent:hover { background: #e6e600; border-color: #e6e600; }
+    .btn-danger  { border-color: var(--error); color: var(--error); }
+    .btn-danger:hover { background: var(--error); border-color: var(--error); color: #fff; }
+    .btn-sm { padding: 5px 11px; font-size: 10px; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      padding: 9px 11px;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: rgba(241,241,241,.6); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    select option { background: #2b2b2b; }
+    textarea { resize: vertical; min-height: 72px; }
+    input[type="file"] { padding: 7px; font-size: 12px; }
+    input[type="checkbox"] { width: auto; margin-right: 6px; cursor: pointer; accent-color: var(--accent); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 22px;
+    }
+    .checkbox-row label { margin: 0; text-transform: none; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--text); }
+
+    /* ── EVENTO SELECTOR BAR ── */
+    .evento-bar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .evento-bar label { margin: 0; }
+    .evento-bar select { width: auto; min-width: 200px; flex: 1; max-width: 380px; }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 560px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .stat-number.color-valida    { color: var(--success); }
+    .stat-number.color-usada     { color: var(--muted); }
+    .stat-number.color-pendiente { color: var(--warning); }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .filters select { width: auto; min-width: 130px; flex: 1; max-width: 200px; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+    th {
+      background: var(--surface2);
+      padding: 9px 12px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    td { padding: 9px 12px; border-top: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,.025); }
+    .table-footer { font-size: 11px; color: var(--muted); padding: 6px 0; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      z-index: 500;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 540px;
+      margin: auto;
+    }
+    .modal-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 1;
+    }
+    .modal-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; padding: 0 2px; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 16px; }
+    .modal-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .toast {
+      padding: 11px 15px;
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 300px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { background: var(--success); color: #fff; }
+    .toast-error   { background: var(--error); color: #fff; }
+    .toast-info    { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── EMPTY / LOADING ── */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+    }
+    .empty-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 12px; }
+    .spinner {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--text);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-bottom: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* ── INVITADOS ── */
+    .invitados-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <img src="/logohorizontal.svg" alt="Condesa" onerror="this.style.display='none'">
+  <span class="header-label">Panel Admin</span>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-tab active" data-tab="eventos">Eventos</button>
+  <button class="nav-tab" data-tab="tipos">Tipos de Entrada</button>
+  <button class="nav-tab" data-tab="invitaciones">Invitaciones</button>
+  <button class="nav-tab" data-tab="asistentes">Asistentes</button>
+</nav>
+
+<main>
+
+  <!-- ═══ EVENTOS ═══ -->
+  <section id="sec-eventos" class="section active">
+    <div class="section-header">
+      <h1 class="section-title">Eventos</h1>
+      <button class="btn btn-primary" onclick="openEventoModal()">+ Nuevo evento</button>
+    </div>
+    <div id="eventos-list">
+      <div class="loading"><div class="spinner"></div><br>Cargando…</div>
+    </div>
+  </section>
+
+  <!-- ═══ TIPOS DE ENTRADA ═══ -->
+  <section id="sec-tipos" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Tipos de Entrada</h1>
+      <button class="btn btn-primary" onclick="openTipoModal()">+ Nuevo tipo</button>
+    </div>
+    <div class="evento-bar">
+      <label>Evento</label>
+      <select id="tipos-evento-sel" onchange="loadTipos()">
+        <option value="">— seleccionar —</option>
+      </select>
+    </div>
+    <div id="tipos-list">
+      <div class="empty"><div class="empty-title">Seleccioná un evento</div></div>
+    </div>
+  </section>
+
+  <!-- ═══ INVITACIONES ═══ -->
+  <section id="sec-invitaciones" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Nueva Invitación</h1>
+    </div>
+    <div id="inv-wrap"></div>
+  </section>
+
+  <!-- ═══ ASISTENTES ═══ -->
+  <section id="sec-asistentes" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Asistentes</h1>
+      <button class="btn btn-sm" onclick="exportCSV()">↓ Exportar CSV</button>
+    </div>
+    <div class="evento-bar">
+      <label>Evento</label>
+      <select id="asist-evento-sel" onchange="loadAsistentes()">
+        <option value="">— seleccionar —</option>
+      </select>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">—</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number color-valida" id="stat-validas">—</div>
+        <div class="stat-label">Válidas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number color-usada" id="stat-usadas">—</div>
+        <div class="stat-label">Usadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number color-pendiente" id="stat-pendientes">—</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <select id="filter-tipo"   onchange="applyFilters()"><option value="">Todos los tipos</option></select>
+      <select id="filter-estado" onchange="applyFilters()">
+        <option value="">Todos los estados</option>
+        <option value="valida">Válida</option>
+        <option value="usada">Usada</option>
+        <option value="pendiente">Pendiente</option>
+      </select>
+      <select id="filter-origen" onchange="applyFilters()">
+        <option value="">Todos los orígenes</option>
+        <option value="admin">Admin</option>
+        <option value="cliente">Cliente</option>
+      </select>
+    </div>
+
+    <div id="asist-table">
+      <div class="empty"><div class="empty-title">Seleccioná un evento</div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ MODAL EVENTO ═══ -->
+<div class="modal-overlay" id="modal-evento">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="m-ev-title">Nuevo Evento</span>
+      <button class="modal-close" onclick="closeModal('modal-evento')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-evento" onsubmit="return false">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input id="ev-nombre" type="text" required placeholder="Ej: Fiesta Electrónica · Dic 2025">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha *</label>
+            <input id="ev-fecha" type="date" required>
+          </div>
+          <div class="form-group">
+            <label>Hora *</label>
+            <input id="ev-hora" type="time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="ev-desc" placeholder="Info adicional del evento…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Flyer (imagen)</label>
+          <input id="ev-flyer" type="file" accept="image/*">
+        </div>
+        <input type="hidden" id="ev-id">
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-evento')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-ev-save" onclick="submitEvento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL TIPO ═══ -->
+<div class="modal-overlay" id="modal-tipo">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="m-tipo-title">Nuevo Tipo de Entrada</span>
+      <button class="modal-close" onclick="closeModal('modal-tipo')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-tipo" onsubmit="return false">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input id="tipo-nombre" type="text" required placeholder="Ej: VIP, General, Lista">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio (0 = gratis)</label>
+            <input id="tipo-precio" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div class="form-group">
+            <label>Cupo máximo (0 = ilimitado)</label>
+            <input id="tipo-cupo" type="number" min="0" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Beneficios</label>
+          <textarea id="tipo-beneficios" placeholder="Consumición incluida, acceso VIP…"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Restricción de edad</label>
+            <select id="tipo-edad">
+              <option value="">Sin restricción</option>
+              <option value="+16">+16</option>
+              <option value="+18">+18</option>
+              <option value="+21">+21</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="checkbox-row">
+              <input id="tipo-visible" type="checkbox" checked>
+              <label for="tipo-visible">Visible al público</label>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="tipo-id">
+        <input type="hidden" id="tipo-ev-id">
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-tipo')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-tipo-save" onclick="submitTipo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+'use strict';
+
+const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const S = {
+  eventos:  [],
+  tipos:    [],          // tipos del evento seleccionado en pestaña Tipos
+  tiposInv: [],          // tipos del evento activo, para Invitaciones
+  entradas: [],
+  filtradas:[],
+};
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`sec-${tab}`).classList.add('active');
+    if (tab === 'invitaciones') {
+      loadInvTab();
+    } else if (tab === 'tipos' || tab === 'asistentes') {
+      // Refrescar S.eventos antes de sincronizar para reflejar cambios de activo
+      try {
+        const d = await apiFetch('GET', '/api/admin/eventos');
+        S.eventos = extraerArray(d, 'eventos');
+      } catch(e) { /* usar caché si falla */ }
+      syncSelect('tipos-evento-sel');
+      syncSelect('asist-evento-sel');
+      if (tab === 'tipos')      loadTipos();
+      if (tab === 'asistentes') loadAsistentes();
+    }
+  });
+});
+
+// ── API ───────────────────────────────────────────────────────────────────────
+async function apiFetch(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(API + path, opts);
+  let data;
+  try { data = await res.json(); } catch { data = {}; }
+  if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+  return data;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.add('show')); });
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 250); }, 3800);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const esc = s => s == null ? '' : String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function fmtFecha(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  } catch { return iso; }
+}
+function fmtDT(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+  } catch { return iso; }
+}
+
+function setHtml(id, html) { document.getElementById(id).innerHTML = html; }
+function loading(id) { setHtml(id, '<div class="loading"><div class="spinner"></div><br>Cargando…</div>'); }
+
+function syncSelect(selId) {
+  if (!Array.isArray(S.eventos)) return;
+  const sel     = document.getElementById(selId);
+  const prev    = sel.value;
+  // D1 devuelve activo como entero 0/1 — usar == para cubrir string "1" también
+  const activo  = S.eventos.find(e => e.activo == 1 || e.active == 1);
+  const defaultId = activo ? String(activo.id) : '';
+  sel.innerHTML = '<option value="">— seleccionar —</option>' +
+    S.eventos.map(e => {
+      const isA    = e.activo == 1 || e.active == 1;
+      const target = prev || defaultId;
+      const sel2   = (target && String(e.id) === target) ? 'selected' : '';
+      return `<option value="${e.id}" ${sel2}>${esc(e.nombre)}${isA ? ' ★' : ''}</option>`;
+    }).join('');
+}
+
+function fileToB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  EVENTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function loadEventos() {
+  loading('eventos-list');
+  try {
+    const d = await apiFetch('GET', '/api/admin/eventos');
+    console.log('[loadEventos] respuesta raw:', d);
+    S.eventos = extraerArray(d, 'eventos');
+    console.log('[loadEventos] S.eventos (', S.eventos.length, '):', S.eventos);
+    renderEventos();
+    syncSelect('tipos-evento-sel');
+    syncSelect('asist-evento-sel');
+  } catch(e) {
+    console.error('[loadEventos] error:', e);
+    setHtml('eventos-list', `<div class="empty"><div class="empty-title">Error al cargar eventos</div>${esc(e.message)}</div>`);
+  }
+}
+
+// Extrae un array de una respuesta que puede ser:
+//   [] | { key: [] } | { data: [] } | { data: { key: [] } }
+function extraerArray(d, key) {
+  if (Array.isArray(d))              return d;
+  if (Array.isArray(d[key]))         return d[key];
+  if (Array.isArray(d.data))         return d.data;
+  if (d.data && Array.isArray(d.data[key])) return d.data[key];
+  return [];
+}
+
+function renderEventos() {
+  const el = document.getElementById('eventos-list');
+  if (!S.eventos.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-title">Sin eventos todavía</div>Creá el primero con "+ Nuevo evento"</div>';
+    return;
+  }
+  el.innerHTML = S.eventos.map(ev => {
+    const activo = ev.activo || ev.active;
+    const precio = ev.descripcion ? `<div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(ev.descripcion)}</div>` : '';
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${esc(ev.nombre)}</div>
+            <div class="card-meta">${fmtFecha(ev.fecha)}</div>
+          </div>
+          <div class="card-actions">
+            <span class="badge ${activo ? 'badge-active' : 'badge-inactive'}">${activo ? 'Activo' : 'Inactivo'}</span>
+            <button class="btn btn-sm" onclick="openEventoModal(${ev.id})">Editar</button>
+            <button class="btn btn-sm ${activo ? 'btn-danger' : ''}" onclick="toggleActivo(${ev.id},${!activo})">
+              ${activo ? 'Desactivar' : 'Activar'}
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteEvento(${ev.id})" title="Eliminar evento">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        ${precio}
+      </div>`;
+  }).join('');
+}
+
+function openEventoModal(id = null) {
+  document.getElementById('m-ev-title').textContent = id ? 'Editar Evento' : 'Nuevo Evento';
+  ['ev-nombre','ev-desc'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('ev-fecha').value = '';
+  document.getElementById('ev-hora').value  = '23:59';  // default para nuevo evento
+  document.getElementById('ev-flyer').value = '';
+  document.getElementById('ev-id').value = '';
+
+  if (id) {
+    const ev = S.eventos.find(e => e.id === id);
+    if (ev) {
+      document.getElementById('ev-id').value     = ev.id;
+      document.getElementById('ev-nombre').value = ev.nombre || '';
+      document.getElementById('ev-desc').value   = ev.descripcion || '';
+      if (ev.fecha) {
+        // Slice directo para evitar conversión UTC
+        const f = String(ev.fecha);
+        document.getElementById('ev-fecha').value = f.slice(0, 10);
+        document.getElementById('ev-hora').value  = f.slice(11, 16) || '23:59';
+      }
+    }
+  }
+  openModal('modal-evento');
+}
+
+async function submitEvento() {
+  const nombre = document.getElementById('ev-nombre').value.trim();
+  const fecha  = document.getElementById('ev-fecha').value;
+  const hora   = document.getElementById('ev-hora').value;
+  if (!nombre || !fecha || !hora) { toast('Completá nombre, fecha y hora', 'error'); return; }
+
+  const id  = document.getElementById('ev-id').value;
+  const btn = document.getElementById('btn-ev-save');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+
+  try {
+    const body = { nombre, fecha: `${fecha}T${hora}:00`, descripcion: document.getElementById('ev-desc').value.trim() };
+
+    let eventoId = id;
+    if (id) {
+      await apiFetch('PUT', `/api/admin/eventos/${id}`, body);
+    } else {
+      const d = await apiFetch('POST', '/api/admin/eventos', body);
+      eventoId = (d.data || d)?.id;
+    }
+
+    // Flyer: request separado como multipart/form-data
+    const flyerFile = document.getElementById('ev-flyer').files[0];
+    if (flyerFile && eventoId) {
+      btn.textContent = 'Subiendo flyer…';
+      const fd = new FormData();
+      fd.append('flyer', flyerFile);
+      const res = await fetch(`${API}/api/admin/eventos/${eventoId}/flyer`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error || `Error subiendo flyer (${res.status})`);
+      }
+    }
+
+    toast(id ? 'Evento actualizado' : 'Evento creado', 'success');
+    closeModal('modal-evento');
+    await loadEventos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar';
+  }
+}
+
+async function toggleActivo(id, activar) {
+  try {
+    await apiFetch('PUT', `/api/admin/eventos/${id}`, { activo: activar });
+    toast(activar ? 'Evento activado' : 'Evento desactivado', 'success');
+    await loadEventos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  TIPOS DE ENTRADA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function loadTipos() {
+  const evId = document.getElementById('tipos-evento-sel').value;
+  if (!evId) {
+    setHtml('tipos-list', '<div class="empty"><div class="empty-title">Seleccioná un evento</div></div>');
+    return;
+  }
+  loading('tipos-list');
+  try {
+    const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${evId}`);
+    console.log('[loadTipos] raw:', d);
+    S.tipos = extraerArray(d, 'tipos');
+    console.log('[loadTipos] S.tipos:', S.tipos.length, S.tipos);
+    renderTipos();
+  } catch(e) {
+    console.error('[loadTipos] error:', e);
+    setHtml('tipos-list', `<div class="empty">Error: ${esc(e.message)}</div>`);
+  }
+}
+
+function renderTipos() {
+  const el = document.getElementById('tipos-list');
+  if (!S.tipos.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-title">Sin tipos de entrada</div>Creá el primero con "+ Nuevo tipo"</div>';
+    return;
+  }
+  el.innerHTML = S.tipos.map(t => {
+    const precio = (t.precio == 0 || t.precio === '0' || t.precio === null)
+      ? `<span style="color:var(--accent);font-weight:700">GRATIS</span>`
+      : `$${Number(t.precio).toLocaleString('es-AR')}`;
+    const edad = t.restriccion_edad || t.edad_minima || '';
+    const cupo = t.cupo_maximo || t.cupo || 0;
+    const visible = t.visible_publico !== false && t.visible !== false;
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${esc(t.nombre)}</div>
+            <div class="card-meta">
+              ${precio}
+              ${edad ? ` · ${esc(edad)}` : ''}
+              · ${cupo ? `Cupo ${cupo}` : 'Sin límite'}
+              ${!visible ? ' · <span style="color:var(--error)">Oculto</span>' : ''}
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm" onclick="openTipoModal(${t.id})">Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteTipo(${t.id})" title="Eliminar tipo">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        ${t.beneficios ? `<div style="font-size:12px;color:var(--muted);margin-top:7px">${esc(t.beneficios)}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function openTipoModal(id = null) {
+  const evId = document.getElementById('tipos-evento-sel').value;
+  if (!id && !evId) { toast('Seleccioná un evento primero', 'error'); return; }
+
+  document.getElementById('m-tipo-title').textContent = id ? 'Editar Tipo' : 'Nuevo Tipo de Entrada';
+  ['tipo-nombre','tipo-beneficios'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('tipo-precio').value  = '0';
+  document.getElementById('tipo-cupo').value    = '0';
+  document.getElementById('tipo-edad').value    = '';
+  document.getElementById('tipo-visible').checked = true;
+  document.getElementById('tipo-id').value      = '';
+  document.getElementById('tipo-ev-id').value   = evId;
+
+  if (id) {
+    const t = S.tipos.find(x => x.id === id);
+    if (t) {
+      document.getElementById('tipo-id').value       = t.id;
+      document.getElementById('tipo-nombre').value   = t.nombre || '';
+      document.getElementById('tipo-precio').value   = t.precio ?? 0;
+      document.getElementById('tipo-cupo').value     = t.cupo_maximo || t.cupo || 0;
+      document.getElementById('tipo-beneficios').value = t.beneficios || '';
+      const edadVal = t.restriccion_edad || t.edad_minima;
+      document.getElementById('tipo-edad').value = edadVal ? `+${parseInt(edadVal)}` : '';
+      document.getElementById('tipo-visible').checked = (t.visible_publico !== false && t.visible !== false);
+      document.getElementById('tipo-ev-id').value   = t.evento_id || evId;
+    }
+  }
+  openModal('modal-tipo');
+}
+
+async function submitTipo() {
+  const nombre = document.getElementById('tipo-nombre').value.trim();
+  if (!nombre) { toast('Ingresá un nombre', 'error'); return; }
+
+  const id  = document.getElementById('tipo-id').value;
+  const btn = document.getElementById('btn-tipo-save');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+
+  try {
+    const edadRaw = document.getElementById('tipo-edad').value;
+    const body = {
+      evento_id:        document.getElementById('tipo-ev-id').value,
+      nombre,
+      precio:           parseFloat(document.getElementById('tipo-precio').value) || 0,
+      cupo_maximo:      parseInt(document.getElementById('tipo-cupo').value) || 0,
+      beneficios:       document.getElementById('tipo-beneficios').value.trim(),
+      restriccion_edad: edadRaw ? parseInt(edadRaw) : null,
+      visible_publico:  document.getElementById('tipo-visible').checked,
+    };
+    if (id) {
+      await apiFetch('PUT', `/api/admin/tipos-entrada/${id}`, body);
+      toast('Tipo actualizado', 'success');
+    } else {
+      await apiFetch('POST', '/api/admin/tipos-entrada', body);
+      toast('Tipo creado', 'success');
+    }
+    closeModal('modal-tipo');
+    await loadTipos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  INVITACIONES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function loadInvTab() {
+  try {
+    if (!Array.isArray(S.eventos) || !S.eventos.length) {
+      setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Cargando eventos…</div>Intentá de nuevo en un momento</div>');
+      return;
+    }
+    const activo = S.eventos.find(e => e.activo == 1 || e.active == 1);
+    if (!activo) {
+      setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Sin evento activo</div>Activá un evento desde la pestaña Eventos</div>');
+      return;
+    }
+    // Recargar tipos si el evento activo cambió
+    if (!S.tiposInv.length || S._tiposInvEvId !== activo.id) {
+      setHtml('inv-wrap', '<div class="loading"><div class="spinner"></div><br>Cargando tipos…</div>');
+      const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${activo.id}`);
+      console.log('[loadInvTab] tipos raw:', d);
+      S.tiposInv     = extraerArray(d, 'tipos');
+      S._tiposInvEvId = activo.id;
+    }
+    S._invActivo = activo;
+    renderInvForm(activo);
+  } catch(e) {
+    console.error('[loadInvTab] error:', e);
+    setHtml('inv-wrap', `<div class="empty"><div class="empty-title">Error al cargar el formulario</div>${esc(e.message)}</div>`);
+  }
+}
+
+function renderInvForm(activo) {
+  const opcs = S.tiposInv.map(t => `<option value="${t.id}">${esc(t.nombre)}</option>`).join('');
+  document.getElementById('inv-wrap').innerHTML = `
+    <div class="card">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
+        Evento activo: <strong style="color:var(--text)">${esc(activo.nombre)}</strong>
+      </div>
+      <form id="form-inv" onsubmit="return false">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre completo *</label>
+            <input id="inv-nombre-completo" type="text" required placeholder="Nombre y Apellido">
+          </div>
+          <div class="form-group">
+            <label>DNI *</label>
+            <input id="inv-dni" type="text" required placeholder="12345678">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input id="inv-email" type="email" placeholder="correo@ejemplo.com">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input id="inv-tel" type="tel" placeholder="+54 9 358 …">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Usuario Instagram</label>
+            <input id="inv-ig" type="text" placeholder="@usuario">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de entrada *</label>
+            <select id="inv-tipo" required>
+              <option value="">— seleccionar —</option>
+              ${opcs}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cantidad de invitados</label>
+            <input id="inv-cant" type="number" min="0" max="20" value="0" oninput="renderInvitadoFields()">
+          </div>
+        </div>
+
+        <div id="inv-invitados-wrap" style="display:none">
+          <div class="form-group">
+            <label>Nombres de invitados</label>
+            <div class="invitados-list" id="inv-invitados"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mensaje especial / notas</label>
+          <textarea id="inv-msg" placeholder="Indicaciones, notas internas…"></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="btn-inv" onclick="submitInvitacion()">
+          Generar invitación y enviar QR
+        </button>
+      </form>
+    </div>`;
+}
+
+function renderInvitadoFields() {
+  const n = parseInt(document.getElementById('inv-cant').value) || 0;
+  document.getElementById('inv-invitados-wrap').style.display = n > 0 ? '' : 'none';
+  document.getElementById('inv-invitados').innerHTML =
+    Array.from({length: n}, (_,i) =>
+      `<input type="text" placeholder="Invitado ${i+1}" id="inv-inv-${i}">`
+    ).join('');
+}
+
+async function submitInvitacion() {
+  const cant = parseInt(document.getElementById('inv-cant').value) || 0;
+  const detalle = Array.from({length: cant}, (_,i) =>
+    document.getElementById(`inv-inv-${i}`)?.value?.trim() || ''
+  ).filter(Boolean).join('\n');
+
+  const nombreCompleto = document.getElementById('inv-nombre-completo').value.trim();
+  const espacio        = nombreCompleto.indexOf(' ');
+  const nombre         = espacio >= 0 ? nombreCompleto.slice(0, espacio) : nombreCompleto;
+  const apellido       = espacio >= 0 ? nombreCompleto.slice(espacio + 1).trim() : '-';
+
+  const body = {
+    evento_id:          S._invActivo?.id,
+    mail:               document.getElementById('inv-email').value.trim() || undefined,
+    nombre,
+    apellido,
+    telefono:           document.getElementById('inv-tel').value.trim() || undefined,
+    instagram:          document.getElementById('inv-ig').value.trim() || undefined,
+    dni:                document.getElementById('inv-dni').value.trim(),
+    tipo_entrada_id:    document.getElementById('inv-tipo').value,
+    cantidad_invitados: cant,
+    detalle_invitados:  detalle,
+    mensaje:            document.getElementById('inv-msg').value.trim() || undefined,
+  };
+
+  if (!nombreCompleto || !body.dni || !body.tipo_entrada_id || !body.evento_id) {
+    toast('Completá nombre completo, DNI y tipo de entrada', 'error');
+    if (!body.evento_id) toast('No hay evento activo — recargá la pestaña', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btn-inv');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+
+  try {
+    await apiFetch('POST', '/api/admin/invitaciones', body);
+    toast('Invitación enviada · QR generado', 'success');
+    document.getElementById('form-inv').reset();
+    renderInvitadoFields();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generar invitación y enviar QR';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  ASISTENTES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function loadAsistentes() {
+  const evId = document.getElementById('asist-evento-sel').value;
+  if (!evId) {
+    setHtml('asist-table', '<div class="empty"><div class="empty-title">Seleccioná un evento</div></div>');
+    resetStats(); return;
+  }
+  loading('asist-table');
+  try {
+    const d = await apiFetch('GET', `/api/admin/entradas?evento_id=${evId}`);
+    // API devuelve { ok, data: { entradas: [], stats: {} } }
+    const payload    = d.data || d;
+    S.entradas  = extraerArray(payload, 'entradas');
+    S.filtradas = [...S.entradas];
+    updateStats(payload.stats);
+    populateTipoFilter();
+    renderTable();
+  } catch(e) {
+    setHtml('asist-table', `<div class="empty">Error: ${esc(e.message)}</div>`);
+  }
+}
+
+function updateStats(apiStats) {
+  // Usar stats del servidor si vienen; si no, calcular desde el array
+  const total      = apiStats?.total      ?? S.entradas.length;
+  const validas    = apiStats?.validas    ?? S.entradas.filter(e => e.estado === 'valida').length;
+  const usadas     = apiStats?.usadas     ?? S.entradas.filter(e => e.estado === 'usada').length;
+  const pendientes = apiStats?.pendientes ?? S.entradas.filter(e => e.estado === 'pendiente').length;
+  document.getElementById('stat-total').textContent      = total;
+  document.getElementById('stat-validas').textContent    = validas;
+  document.getElementById('stat-usadas').textContent     = usadas;
+  document.getElementById('stat-pendientes').textContent = pendientes;
+}
+function resetStats() {
+  ['stat-total','stat-validas','stat-usadas','stat-pendientes']
+    .forEach(id => document.getElementById(id).textContent = '—');
+}
+
+function populateTipoFilter() {
+  const unicos = [...new Set(S.entradas.map(e => e.tipo_nombre || e.tipo || '').filter(Boolean))];
+  const prev = document.getElementById('filter-tipo').value;
+  document.getElementById('filter-tipo').innerHTML =
+    '<option value="">Todos los tipos</option>' +
+    unicos.map(t => `<option value="${esc(t)}" ${prev===t?'selected':''}>${esc(t)}</option>`).join('');
+}
+
+function applyFilters() {
+  const tipo   = document.getElementById('filter-tipo').value;
+  const estado = document.getElementById('filter-estado').value;
+  const origen = document.getElementById('filter-origen').value;
+  S.filtradas = S.entradas.filter(e => {
+    if (tipo   && (e.tipo_nombre||e.tipo||'') !== tipo)   return false;
+    if (estado && (e.estado||'') !== estado)               return false;
+    if (origen && (e.origen||'') !== origen)               return false;
+    return true;
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const el = document.getElementById('asist-table');
+  if (!S.filtradas.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-title">Sin registros</div>No hay entradas que coincidan con los filtros</div>';
+    return;
+  }
+  const filas = S.filtradas.map(e => {
+    const nombre  = [e.nombre, e.apellido].filter(Boolean).join(' ') || '—';
+    const tipo    = e.tipo_nombre || e.tipo || '—';
+    const estado  = e.estado || 'pendiente';
+    const origen  = e.origen || 'admin';
+    const cant    = e.cantidad_invitados ?? e.invitados ?? 0;
+    const fecha   = fmtDT(e.created_at || e.fecha_compra);
+    return `
+      <tr>
+        <td style="font-weight:600">${esc(nombre)}</td>
+        <td>${esc(tipo)}</td>
+        <td><span class="badge badge-${estado}">${estado}</span></td>
+        <td><span class="badge badge-${origen}">${origen}</span></td>
+        <td style="text-align:center">${cant}</td>
+        <td style="font-size:11px;color:var(--muted);white-space:nowrap">${fecha}</td>
+        <td style="text-align:center">
+          <button class="btn btn-sm btn-danger" onclick="deleteEntrada(${e.id})" title="Eliminar entrada">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Tipo</th><th>Estado</th>
+            <th>Origen</th><th>Invitados</th><th>Fecha</th><th></th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando ${S.filtradas.length} de ${S.entradas.length} registros</div>`;
+}
+
+function exportCSV() {
+  if (!S.filtradas.length) { toast('Sin datos para exportar', 'error'); return; }
+  const cols = ['Nombre','Apellido','Email','Tipo','Estado','Origen','Invitados','Fecha'];
+  const rows = S.filtradas.map(e => [
+    e.nombre||'', e.apellido||'', e.email||'',
+    e.tipo_nombre||e.tipo||'', e.estado||'', e.origen||'',
+    e.cantidad_invitados??0,
+    e.created_at||e.fecha_compra||'',
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv  = [cols.join(','), ...rows].join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: `asistentes-${new Date().toISOString().slice(0,10)}.csv`,
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('CSV descargado', 'success');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  DELETE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function deleteEvento(id) {
+  if (!confirm('¿Eliminar este evento? Se borrarán todos sus datos. Esta acción no se puede deshacer.')) return;
+  try {
+    await apiFetch('DELETE', `/api/admin/eventos/${id}`);
+    toast('Evento eliminado', 'success');
+    await loadEventos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+async function deleteTipo(id) {
+  if (!confirm('¿Eliminar este tipo de entrada?')) return;
+  try {
+    await apiFetch('DELETE', `/api/admin/tipos-entrada/${id}`);
+    toast('Tipo eliminado', 'success');
+    await loadTipos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+async function deleteEntrada(id) {
+  if (!confirm('¿Eliminar esta entrada? Esta acción no se puede deshacer.')) return;
+  try {
+    await apiFetch('DELETE', `/api/admin/entradas/${id}`);
+    toast('Entrada eliminada', 'success');
+    S.entradas  = S.entradas.filter(e => e.id !== id);
+    S.filtradas = S.filtradas.filter(e => e.id !== id);
+    updateStats();
+    renderTable();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+loadEventos();
+</script>
+</body>
+</html>

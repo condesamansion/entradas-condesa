@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Escáner — Condesa</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #333333;
+      color: #f1f1f1;
+      font-family: 'Montserrat', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .hidden { display: none !important; }
+
+    /* ── IDLE ── */
+    #s-idle { background: #333333; gap: 28px; }
+
+    .logo { width: 72px; opacity: .9; }
+
+    .idle-role {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .btn-scan {
+      margin-top: 8px;
+      background: #f1f1f1;
+      color: #1a1a1a;
+      border: none;
+      padding: 22px 56px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity .1s;
+    }
+    .btn-scan:active { opacity: .75; }
+
+    /* ── SCAN ── */
+    #s-scan { background: #000; }
+
+    #video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .scan-ui {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .scan-frame {
+      width: 230px;
+      height: 230px;
+      position: relative;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.55);
+    }
+
+    /* Esquinas */
+    .scan-frame::before,
+    .scan-frame::after,
+    .corner-bl,
+    .corner-tr {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-color: #f1f1f1;
+      border-style: solid;
+    }
+    .scan-frame::before { top: 0; left: 0; border-width: 3px 0 0 3px; }
+    .scan-frame::after  { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+    .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+    .corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+
+    /* Línea de escaneo */
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(241,241,241,.9), transparent);
+      animation: scan-move 2s ease-in-out infinite;
+    }
+    @keyframes scan-move {
+      0%   { top: 0; opacity: 1; }
+      48%  { top: calc(100% - 2px); opacity: 1; }
+      50%  { top: calc(100% - 2px); opacity: 0; }
+      52%  { top: 0; opacity: 0; }
+      54%  { opacity: 1; }
+      100% { top: 0; opacity: 1; }
+    }
+
+    .scan-hint {
+      color: rgba(241,241,241,.85);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 1px 10px rgba(0,0,0,.9);
+    }
+
+    .btn-cancel {
+      position: fixed;
+      bottom: 44px;
+      z-index: 3;
+      background: transparent;
+      border: 1px solid rgba(241,241,241,.35);
+      color: rgba(241,241,241,.7);
+      padding: 14px 40px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-cancel:active { border-color: #f1f1f1; color: #f1f1f1; }
+
+    /* ── LOADING ── */
+    #s-load { background: #333; gap: 20px; }
+
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid #555;
+      border-top-color: #f1f1f1;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .load-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #777;
+      text-transform: uppercase;
+    }
+
+    /* ── RESULT ── */
+    #s-result {
+      gap: 14px;
+      padding: 48px 36px 140px;
+      transition: background .15s;
+    }
+
+    .r-mark {
+      font-size: 80px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .r-title {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .r-divider {
+      width: 40px;
+      height: 2px;
+      background: rgba(255,255,255,.25);
+      margin: 6px 0;
+    }
+
+    .r-nombre {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .r-tipo {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.6);
+      text-align: center;
+    }
+
+    .r-personas {
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .r-sub {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,.55);
+      text-align: center;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .r-mensaje {
+      font-size: 13px;
+      font-style: italic;
+      color: rgba(255,255,255,.5);
+      text-align: center;
+      max-width: 280px;
+    }
+
+    .btn-next {
+      position: fixed;
+      bottom: 44px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      padding: 18px 56px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-next:active { background: rgba(255,255,255,.22); }
+  </style>
+</head>
+<body>
+
+  <!-- IDLE -->
+  <div id="s-idle" class="screen">
+    <img class="logo" src="../logo.svg" alt="Condesa">
+    <div class="idle-role">Portero</div>
+    <button class="btn-scan" onclick="iniciarScan()">ESCANEAR QR</button>
+  </div>
+
+  <!-- SCANNING -->
+  <div id="s-scan" class="screen hidden">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div class="scan-ui">
+      <div class="scan-frame">
+        <div class="corner-bl"></div>
+        <div class="corner-tr"></div>
+        <div class="scan-line"></div>
+      </div>
+      <p class="scan-hint">Apuntá el QR al cuadro</p>
+    </div>
+    <button class="btn-cancel" onclick="detener(); mostrarIdle();">CANCELAR</button>
+  </div>
+
+  <!-- LOADING -->
+  <div id="s-load" class="screen hidden">
+    <div class="spinner"></div>
+    <p class="load-label">Verificando</p>
+  </div>
+
+  <!-- RESULT -->
+  <div id="s-result" class="screen hidden">
+    <div id="r-mark" class="r-mark"></div>
+    <div id="r-title" class="r-title"></div>
+    <div class="r-divider"></div>
+    <div id="r-nombre" class="r-nombre"></div>
+    <div id="r-tipo" class="r-tipo"></div>
+    <div id="r-personas" class="r-personas"></div>
+    <div id="r-sub" class="r-sub"></div>
+    <div id="r-mensaje" class="r-mensaje"></div>
+    <button class="btn-next" onclick="volver()">SIGUIENTE</button>
+  </div>
+
+  <script>
+    const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+
+    let stream  = null;
+    let rafId   = null;
+    let activo  = false; // true mientras scaneando
+
+    // ── Pantallas ──────────────────────────────────────────────
+
+    function show(id) {
+      ['s-idle', 's-scan', 's-load', 's-result'].forEach(s => {
+        document.getElementById(s).classList.toggle('hidden', s !== id);
+      });
+    }
+
+    function mostrarIdle() { show('s-idle'); }
+
+    // ── Cámara ────────────────────────────────────────────────
+
+    async function iniciarScan() {
+      show('s-scan');
+      const video = document.getElementById('video');
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width:  { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        });
+        video.srcObject = stream;
+        await video.play();
+        activo = true;
+        rafId = requestAnimationFrame(tick);
+      } catch (e) {
+        alert('No se pudo acceder a la cámara: ' + e.message);
+        show('s-idle');
+      }
+    }
+
+    function detener() {
+      activo = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      document.getElementById('video').srcObject = null;
+    }
+
+    // ── Loop de escaneo ────────────────────────────────────────
+
+    function tick() {
+      if (!activo) return;
+
+      const video  = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+
+      if (video.readyState < video.HAVE_ENOUGH_DATA) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert',
+      });
+
+      if (code) {
+        const token = extraerToken(code.data);
+        if (token) {
+          detener();
+          verificar(token);
+          return;
+        }
+      }
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // ── Token ─────────────────────────────────────────────────
+
+    function extraerToken(str) {
+      // URL con /e/:uuid
+      const m = str.match(/\/e\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+      if (m) return m[1];
+      // UUID directo
+      if (/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(str.trim())) {
+        return str.trim();
+      }
+      return null;
+    }
+
+    // ── API ───────────────────────────────────────────────────
+
+    async function verificar(token) {
+      show('s-load');
+      try {
+        const res  = await fetch(`${API}/api/scan/${token}`);
+        const json = await res.json();
+        const d    = json.data || json;
+        mostrarResultado(d);
+      } catch (e) {
+        mostrarResultado({
+          resultado: 'invalido',
+          codigo:    'NET_ERROR',
+          mensaje:   'Error de red — verificá la conexión',
+        });
+      }
+    }
+
+    // ── Resultado ─────────────────────────────────────────────
+
+    function mostrarResultado(d) {
+      const screen  = document.getElementById('s-result');
+      const e       = d.entrada || {};
+
+      // Reset
+      ['r-nombre','r-tipo','r-personas','r-sub','r-mensaje'].forEach(id => {
+        document.getElementById(id).textContent = '';
+      });
+
+      if (d.resultado === 'valido') {
+        screen.style.background = '#0a3d1f';
+        document.getElementById('r-mark').textContent  = '✓';
+        document.getElementById('r-title').textContent = 'VÁLIDO';
+
+        document.getElementById('r-nombre').textContent  = e.nombre || '';
+        document.getElementById('r-tipo').textContent    = e.tipo   || '';
+
+        const total = e.total_personas || 1;
+        document.getElementById('r-personas').textContent =
+          total === 1 ? '1 persona' : `${total} personas`;
+
+        const subs = [];
+        if (e.invitados_count > 0) subs.push(`+ ${e.invitados_count} invitado${e.invitados_count > 1 ? 's' : ''}`);
+        if (e.beneficios)          subs.push(e.beneficios);
+        if (e.dni)                 subs.push(`DNI: ${e.dni}`);
+        document.getElementById('r-sub').textContent = subs.join('  ·  ');
+
+        if (e.mensaje_especial) {
+          document.getElementById('r-mensaje').textContent = `"${e.mensaje_especial}"`;
+        }
+
+      } else if (d.resultado === 'usada') {
+        screen.style.background = '#3d3000';
+        document.getElementById('r-mark').textContent  = '⚠';
+        document.getElementById('r-title').textContent = 'YA USADA';
+
+        if (e.nombre) document.getElementById('r-nombre').textContent = e.nombre;
+        if (e.tipo)   document.getElementById('r-tipo').textContent   = e.tipo;
+
+        const sub = d.usado_at
+          ? `Ingresó el ${fmtFecha(d.usado_at)}`
+          : 'Esta entrada ya fue utilizada';
+        document.getElementById('r-sub').textContent = sub;
+
+      } else {
+        screen.style.background = '#3d0a0a';
+        document.getElementById('r-mark').textContent  = '✕';
+        document.getElementById('r-title').textContent = 'INVÁLIDO';
+
+        if (e.nombre) document.getElementById('r-nombre').textContent = e.nombre;
+        document.getElementById('r-sub').textContent = d.mensaje || 'Entrada no reconocida';
+      }
+
+      show('s-result');
+    }
+
+    function volver() {
+      document.getElementById('s-result').style.background = '';
+      show('s-idle');
+    }
+
+    // ── Helpers ───────────────────────────────────────────────
+
+    function fmtFecha(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleString('es-AR', {
+        day: '2-digit', month: '2-digit', year: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+      });
+    }
+
+    // ── Init: ?token= en URL ──────────────────────────────────
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(location.search);
+      const t = params.get('token');
+      if (t) verificar(t);
+    });
+  </script>
+</body>
+</html>

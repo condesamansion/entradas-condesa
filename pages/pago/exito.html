@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Todo listo! — Condesa</title>
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100vh;
+      background: #333333;
+      color: #f1f1f1;
+      font-family: 'Montserrat', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+      padding: 48px 24px;
+      max-width: 420px;
+      width: 100%;
+    }
+    .logo { width: 90px; opacity: 0.9; }
+    .mark { font-size: 52px; line-height: 1; color: #4caf6e; }
+    .title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .body  { font-size: 15px; font-weight: 300; color: #888; line-height: 1.8; }
+    .btn {
+      display: inline-block;
+      margin-top: 8px;
+      border: 1px solid #4a4a4a;
+      color: #888;
+      background: transparent;
+      padding: 12px 28px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color .15s, color .15s;
+    }
+    .btn:hover { border-color: #f1f1f1; color: #f1f1f1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="logo" src="../../logo.svg" alt="Condesa">
+    <div class="mark">✓</div>
+    <div class="title">¡Todo listo!</div>
+    <p class="body">Revisá tu mail — te enviamos el QR de entrada.</p>
+    <a class="btn" href="/">VOLVER AL INICIO</a>
+  </div>
+</body>
+</html>

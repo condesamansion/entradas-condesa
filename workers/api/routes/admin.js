@@ -146,11 +146,13 @@ export async function handleAdmin(request, env, pathname) {
 
     // Generar QR y subir a R2
     let qrBase64, qrUrl;
+    console.log('Generando QR para token:', token, 'baseUrl:', env.QR_BASE_URL);
     try {
       const qr = await procesarQR(token, env.QR_BASE_URL, env.BUCKET);
       qrBase64 = qr.base64;
       qrUrl = qr.url;
     } catch (e) {
+      console.error('Error completo QR:', e.message, e.stack);
       return err(`Error generando QR: ${e.message}`, 500);
     }
 
@@ -170,6 +172,7 @@ export async function handleAdmin(request, env, pathname) {
       origen: 'admin',
       estado: 'valida',
       mensaje_especial: body.mensaje_especial,
+      creado_por: body.creado_por ?? null,
     });
 
     // Obtener evento para el mail

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Condesa</title>
+  <title>Gestión — Condesa</title>
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -33,6 +33,36 @@
       line-height: 1.5;
     }
 
+    /* ── LOGIN ── */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      background: #333333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #login-screen.hidden { display: none; }
+    .login-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 300px;
+      padding: 0 24px;
+    }
+    .login-logo { width: 60px; opacity: .9; }
+    .login-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .login-box .form-group { width: 100%; margin-bottom: 0; }
+
     /* ── HEADER ── */
     .header {
       background: var(--surface);
@@ -54,6 +84,18 @@
       color: var(--muted);
       border-left: 1px solid var(--border);
       padding-left: 14px;
+    }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-user {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--muted);
     }
 
     /* ── NAV ── */
@@ -103,11 +145,7 @@
       margin-bottom: 18px;
       flex-wrap: wrap;
     }
-    .section-title {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
+    .section-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
 
     /* ── CARDS ── */
     .card {
@@ -125,6 +163,7 @@
     .card-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
     .card-title { font-size: 14px; font-weight: 700; }
     .card-meta  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .card-by    { font-size: 11px; color: #666; margin-top: 5px; }
 
     /* ── BADGES ── */
     .badge {
@@ -203,11 +242,7 @@
     input[type="file"] { padding: 7px; font-size: 12px; }
     input[type="checkbox"] { width: auto; margin-right: 6px; cursor: pointer; accent-color: var(--accent); }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
 
     .checkbox-row {
@@ -240,41 +275,20 @@
       margin-bottom: 16px;
     }
     @media (max-width: 560px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 14px 10px;
-      text-align: center;
-    }
-    .stat-number {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1;
-    }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 14px 10px; text-align: center; }
+    .stat-number { font-size: 30px; font-weight: 800; line-height: 1; }
     .stat-number.color-valida    { color: var(--success); }
     .stat-number.color-usada     { color: var(--muted); }
     .stat-number.color-pendiente { color: var(--warning); }
-    .stat-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+    .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
 
     /* ── FILTERS ── */
-    .filters {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
     .filters select { width: auto; min-width: 130px; flex: 1; max-width: 200px; }
 
     /* ── TABLE ── */
     .table-wrap { overflow-x: auto; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
     th {
       background: var(--surface2);
       padding: 9px 12px;
@@ -303,13 +317,7 @@
       overflow-y: auto;
     }
     .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      width: 100%;
-      max-width: 540px;
-      margin: auto;
-    }
+    .modal { background: var(--surface); border: 1px solid var(--border); width: 100%; max-width: 540px; margin: auto; }
     .modal-header {
       padding: 14px 16px;
       border-bottom: 1px solid var(--border);
@@ -325,13 +333,7 @@
     .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; padding: 0 2px; }
     .modal-close:hover { color: var(--text); }
     .modal-body { padding: 16px; }
-    .modal-footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
+    .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
 
     /* ── TOAST ── */
     .toast-container {
@@ -344,52 +346,58 @@
       gap: 6px;
       pointer-events: none;
     }
-    .toast {
-      padding: 11px 15px;
-      font-size: 12px;
-      font-weight: 600;
-      max-width: 300px;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity .2s, transform .2s;
-    }
+    .toast { padding: 11px 15px; font-size: 12px; font-weight: 600; max-width: 300px; opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast-success { background: var(--success); color: #fff; }
     .toast-error   { background: var(--error); color: #fff; }
     .toast-info    { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 
     /* ── EMPTY / LOADING ── */
-    .empty {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      border: 1px dashed var(--border);
-    }
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); border: 1px dashed var(--border); }
     .empty-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
     .loading { text-align: center; padding: 40px; color: var(--muted); font-size: 12px; }
-    .spinner {
-      display: inline-block;
-      width: 22px; height: 22px;
-      border: 2px solid var(--border);
-      border-top-color: var(--text);
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
-      margin-bottom: 8px;
-    }
+    .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin .6s linear infinite; margin-bottom: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-
-    /* ── INVITADOS ── */
     .invitados-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
   </style>
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <img class="login-logo" src="/logo.svg" alt="Condesa" onerror="this.style.display='none'">
+    <div class="login-label">Gestión Interna</div>
+    <div class="form-group">
+      <label>Usuario</label>
+      <select id="login-user">
+        <option value="">— seleccioná —</option>
+        <option value="carla">carla</option>
+        <option value="gonza">gonza</option>
+        <option value="fede">fede</option>
+        <option value="mauri">mauri</option>
+        <option value="santi">santi</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input id="login-pass" type="password" placeholder="••••••••"
+             onkeydown="if(event.key==='Enter') login()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="login()">INGRESAR</button>
+  </div>
+</div>
+
 <!-- HEADER -->
 <header class="header">
   <img src="/logohorizontal.svg" alt="Condesa" onerror="this.style.display='none'">
-  <span class="header-label">Panel Admin</span>
+  <span class="header-label">Gestión Interna</span>
+  <div class="header-right">
+    <span class="header-user" id="header-user"></span>
+    <button class="btn btn-sm btn-danger" onclick="logout()">SALIR</button>
+  </div>
 </header>
 
 <!-- NAV -->
@@ -452,22 +460,10 @@
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number" id="stat-total">—</div>
-        <div class="stat-label">Total</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number color-valida" id="stat-validas">—</div>
-        <div class="stat-label">Válidas</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number color-usada" id="stat-usadas">—</div>
-        <div class="stat-label">Usadas</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number color-pendiente" id="stat-pendientes">—</div>
-        <div class="stat-label">Pendientes</div>
-      </div>
+      <div class="stat-card"><div class="stat-number" id="stat-total">—</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-number color-valida" id="stat-validas">—</div><div class="stat-label">Válidas</div></div>
+      <div class="stat-card"><div class="stat-number color-usada" id="stat-usadas">—</div><div class="stat-label">Usadas</div></div>
+      <div class="stat-card"><div class="stat-number color-pendiente" id="stat-pendientes">—</div><div class="stat-label">Pendientes</div></div>
     </div>
 
     <div class="filters">
@@ -594,16 +590,51 @@
 <script>
 'use strict';
 
-const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+const API  = 'https://entradas-qr-condesa.condesa.workers.dev';
+const PASS = 'CondesA2026';
+
+let usuarioActual = null;
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const S = {
   eventos:  [],
-  tipos:    [],          // tipos del evento seleccionado en pestaña Tipos
-  tiposInv: [],          // tipos del evento activo, para Invitaciones
+  tipos:    [],
+  tiposInv: [],
   entradas: [],
   filtradas:[],
 };
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+
+function initAuth() {
+  const saved = localStorage.getItem('condesa_usuario');
+  if (saved) {
+    usuarioActual = saved;
+    showPanel();
+  }
+  // login screen visible por defecto (sin clase hidden)
+}
+
+function login() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  if (!user) { toast('Seleccioná un usuario', 'error'); return; }
+  if (pass !== PASS) { toast('Contraseña incorrecta', 'error'); return; }
+  localStorage.setItem('condesa_usuario', user);
+  usuarioActual = user;
+  showPanel();
+}
+
+function logout() {
+  localStorage.removeItem('condesa_usuario');
+  location.reload();
+}
+
+function showPanel() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('header-user').textContent = `· ${usuarioActual}`;
+  loadEventos();
+}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 document.querySelectorAll('.nav-tab').forEach(btn => {
@@ -616,11 +647,10 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
     if (tab === 'invitaciones') {
       loadInvTab();
     } else if (tab === 'tipos' || tab === 'asistentes') {
-      // Refrescar S.eventos antes de sincronizar para reflejar cambios de activo
       try {
         const d = await apiFetch('GET', '/api/admin/eventos');
         S.eventos = extraerArray(d, 'eventos');
-      } catch(e) { /* usar caché si falla */ }
+      } catch(e) { /* usar caché */ }
       syncSelect('tipos-evento-sel');
       syncSelect('asist-evento-sel');
       if (tab === 'tipos')      loadTipos();
@@ -654,8 +684,8 @@ function toast(msg, type = 'info') {
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
@@ -666,15 +696,13 @@ const esc = s => s == null ? '' : String(s)
 
 function fmtFecha(iso) {
   if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  } catch { return iso; }
+  try { return new Date(iso).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }
+  catch { return iso; }
 }
 function fmtDT(iso) {
   if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-  } catch { return iso; }
+  try { return new Date(iso).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  catch { return iso; }
 }
 
 function setHtml(id, html) { document.getElementById(id).innerHTML = html; }
@@ -684,7 +712,6 @@ function syncSelect(selId) {
   if (!Array.isArray(S.eventos)) return;
   const sel     = document.getElementById(selId);
   const prev    = sel.value;
-  // D1 devuelve activo como entero 0/1 — usar == para cubrir string "1" también
   const activo  = S.eventos.find(e => e.activo == 1 || e.active == 1);
   const defaultId = activo ? String(activo.id) : '';
   sel.innerHTML = '<option value="">— seleccionar —</option>' +
@@ -696,13 +723,12 @@ function syncSelect(selId) {
     }).join('');
 }
 
-function fileToB64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
+function extraerArray(d, key) {
+  if (Array.isArray(d))                      return d;
+  if (Array.isArray(d[key]))                 return d[key];
+  if (Array.isArray(d.data))                 return d.data;
+  if (d.data && Array.isArray(d.data[key]))  return d.data[key];
+  return [];
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -713,26 +739,13 @@ async function loadEventos() {
   loading('eventos-list');
   try {
     const d = await apiFetch('GET', '/api/admin/eventos');
-    console.log('[loadEventos] respuesta raw:', d);
     S.eventos = extraerArray(d, 'eventos');
-    console.log('[loadEventos] S.eventos (', S.eventos.length, '):', S.eventos);
     renderEventos();
     syncSelect('tipos-evento-sel');
     syncSelect('asist-evento-sel');
   } catch(e) {
-    console.error('[loadEventos] error:', e);
     setHtml('eventos-list', `<div class="empty"><div class="empty-title">Error al cargar eventos</div>${esc(e.message)}</div>`);
   }
-}
-
-// Extrae un array de una respuesta que puede ser:
-//   [] | { key: [] } | { data: [] } | { data: { key: [] } }
-function extraerArray(d, key) {
-  if (Array.isArray(d))              return d;
-  if (Array.isArray(d[key]))         return d[key];
-  if (Array.isArray(d.data))         return d.data;
-  if (d.data && Array.isArray(d.data[key])) return d.data[key];
-  return [];
 }
 
 function renderEventos() {
@@ -742,8 +755,9 @@ function renderEventos() {
     return;
   }
   el.innerHTML = S.eventos.map(ev => {
-    const activo = ev.activo || ev.active;
-    const precio = ev.descripcion ? `<div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(ev.descripcion)}</div>` : '';
+    const activo    = ev.activo || ev.active;
+    const desc      = ev.descripcion ? `<div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(ev.descripcion)}</div>` : '';
+    const creadoPor = ev.creado_por  ? `<div class="card-by">creado por ${esc(ev.creado_por)}</div>` : '';
     return `
       <div class="card">
         <div class="card-header">
@@ -762,7 +776,7 @@ function renderEventos() {
             </button>
           </div>
         </div>
-        ${precio}
+        ${desc}${creadoPor}
       </div>`;
   }).join('');
 }
@@ -771,9 +785,9 @@ function openEventoModal(id = null) {
   document.getElementById('m-ev-title').textContent = id ? 'Editar Evento' : 'Nuevo Evento';
   ['ev-nombre','ev-desc'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('ev-fecha').value = '';
-  document.getElementById('ev-hora').value  = '23:59';  // default para nuevo evento
+  document.getElementById('ev-hora').value  = '23:59';
   document.getElementById('ev-flyer').value = '';
-  document.getElementById('ev-id').value = '';
+  document.getElementById('ev-id').value    = '';
 
   if (id) {
     const ev = S.eventos.find(e => e.id === id);
@@ -782,7 +796,6 @@ function openEventoModal(id = null) {
       document.getElementById('ev-nombre').value = ev.nombre || '';
       document.getElementById('ev-desc').value   = ev.descripcion || '';
       if (ev.fecha) {
-        // Slice directo para evitar conversión UTC
         const f = String(ev.fecha);
         document.getElementById('ev-fecha').value = f.slice(0, 10);
         document.getElementById('ev-hora').value  = f.slice(11, 16) || '23:59';
@@ -803,7 +816,12 @@ async function submitEvento() {
   btn.disabled = true; btn.textContent = 'Guardando…';
 
   try {
-    const body = { nombre, fecha: `${fecha}T${hora}:00`, descripcion: document.getElementById('ev-desc').value.trim() };
+    const body = {
+      nombre,
+      fecha: `${fecha}T${hora}:00`,
+      descripcion: document.getElementById('ev-desc').value.trim(),
+      creado_por: usuarioActual,
+    };
 
     let eventoId = id;
     if (id) {
@@ -813,7 +831,6 @@ async function submitEvento() {
       eventoId = (d.data || d)?.id;
     }
 
-    // Flyer: request separado como multipart/form-data
     const flyerFile = document.getElementById('ev-flyer').files[0];
     if (flyerFile && eventoId) {
       btn.textContent = 'Subiendo flyer…';
@@ -859,12 +876,9 @@ async function loadTipos() {
   loading('tipos-list');
   try {
     const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${evId}`);
-    console.log('[loadTipos] raw:', d);
     S.tipos = extraerArray(d, 'tipos');
-    console.log('[loadTipos] S.tipos:', S.tipos.length, S.tipos);
     renderTipos();
   } catch(e) {
-    console.error('[loadTipos] error:', e);
     setHtml('tipos-list', `<div class="empty">Error: ${esc(e.message)}</div>`);
   }
 }
@@ -879,9 +893,10 @@ function renderTipos() {
     const precio = (t.precio == 0 || t.precio === '0' || t.precio === null)
       ? `<span style="color:var(--accent);font-weight:700">GRATIS</span>`
       : `$${Number(t.precio).toLocaleString('es-AR')}`;
-    const edad = t.restriccion_edad || t.edad_minima || '';
-    const cupo = t.cupo_maximo || t.cupo || 0;
-    const visible = t.visible_publico !== false && t.visible !== false;
+    const edad      = t.restriccion_edad || t.edad_minima || '';
+    const cupo      = t.cupo_maximo || t.cupo || 0;
+    const visible   = t.visible_publico !== false && t.visible !== false;
+    const creadoPor = t.creado_por ? `<div class="card-by">creado por ${esc(t.creado_por)}</div>` : '';
     return `
       <div class="card">
         <div class="card-header">
@@ -902,6 +917,7 @@ function renderTipos() {
           </div>
         </div>
         ${t.beneficios ? `<div style="font-size:12px;color:var(--muted);margin-top:7px">${esc(t.beneficios)}</div>` : ''}
+        ${creadoPor}
       </div>`;
   }).join('');
 }
@@ -912,25 +928,25 @@ function openTipoModal(id = null) {
 
   document.getElementById('m-tipo-title').textContent = id ? 'Editar Tipo' : 'Nuevo Tipo de Entrada';
   ['tipo-nombre','tipo-beneficios'].forEach(i => document.getElementById(i).value = '');
-  document.getElementById('tipo-precio').value  = '0';
-  document.getElementById('tipo-cupo').value    = '0';
-  document.getElementById('tipo-edad').value    = '';
+  document.getElementById('tipo-precio').value    = '0';
+  document.getElementById('tipo-cupo').value      = '0';
+  document.getElementById('tipo-edad').value      = '';
   document.getElementById('tipo-visible').checked = true;
-  document.getElementById('tipo-id').value      = '';
-  document.getElementById('tipo-ev-id').value   = evId;
+  document.getElementById('tipo-id').value        = '';
+  document.getElementById('tipo-ev-id').value     = evId;
 
   if (id) {
     const t = S.tipos.find(x => x.id === id);
     if (t) {
-      document.getElementById('tipo-id').value       = t.id;
-      document.getElementById('tipo-nombre').value   = t.nombre || '';
-      document.getElementById('tipo-precio').value   = t.precio ?? 0;
-      document.getElementById('tipo-cupo').value     = t.cupo_maximo || t.cupo || 0;
+      document.getElementById('tipo-id').value         = t.id;
+      document.getElementById('tipo-nombre').value     = t.nombre || '';
+      document.getElementById('tipo-precio').value     = t.precio ?? 0;
+      document.getElementById('tipo-cupo').value       = t.cupo_maximo || t.cupo || 0;
       document.getElementById('tipo-beneficios').value = t.beneficios || '';
       const edadVal = t.restriccion_edad || t.edad_minima;
-      document.getElementById('tipo-edad').value = edadVal ? `+${parseInt(edadVal)}` : '';
-      document.getElementById('tipo-visible').checked = (t.visible_publico !== false && t.visible !== false);
-      document.getElementById('tipo-ev-id').value   = t.evento_id || evId;
+      document.getElementById('tipo-edad').value       = edadVal ? `+${parseInt(edadVal)}` : '';
+      document.getElementById('tipo-visible').checked  = (t.visible_publico !== false && t.visible !== false);
+      document.getElementById('tipo-ev-id').value      = t.evento_id || evId;
     }
   }
   openModal('modal-tipo');
@@ -954,6 +970,7 @@ async function submitTipo() {
       beneficios:       document.getElementById('tipo-beneficios').value.trim(),
       restriccion_edad: edadRaw ? parseInt(edadRaw) : null,
       visible_publico:  document.getElementById('tipo-visible').checked,
+      creado_por:       usuarioActual,
     };
     if (id) {
       await apiFetch('PUT', `/api/admin/tipos-entrada/${id}`, body);
@@ -986,18 +1003,15 @@ async function loadInvTab() {
       setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Sin evento activo</div>Activá un evento desde la pestaña Eventos</div>');
       return;
     }
-    // Recargar tipos si el evento activo cambió
     if (!S.tiposInv.length || S._tiposInvEvId !== activo.id) {
       setHtml('inv-wrap', '<div class="loading"><div class="spinner"></div><br>Cargando tipos…</div>');
       const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${activo.id}`);
-      console.log('[loadInvTab] tipos raw:', d);
-      S.tiposInv     = extraerArray(d, 'tipos');
+      S.tiposInv      = extraerArray(d, 'tipos');
       S._tiposInvEvId = activo.id;
     }
     S._invActivo = activo;
     renderInvForm(activo);
   } catch(e) {
-    console.error('[loadInvTab] error:', e);
     setHtml('inv-wrap', `<div class="empty"><div class="empty-title">Error al cargar el formulario</div>${esc(e.message)}</div>`);
   }
 }
@@ -1079,7 +1093,7 @@ function renderInvitadoFields() {
 }
 
 async function submitInvitacion() {
-  const cant = parseInt(document.getElementById('inv-cant').value) || 0;
+  const cant    = parseInt(document.getElementById('inv-cant').value) || 0;
   const detalle = Array.from({length: cant}, (_,i) =>
     document.getElementById(`inv-inv-${i}`)?.value?.trim() || ''
   ).filter(Boolean).join('\n');
@@ -1101,6 +1115,7 @@ async function submitInvitacion() {
     cantidad_invitados: cant,
     detalle_invitados:  detalle,
     mensaje:            document.getElementById('inv-msg').value.trim() || undefined,
+    creado_por:         usuarioActual,
   };
 
   if (!nombreCompleto || !body.dni || !body.tipo_entrada_id || !body.evento_id) {
@@ -1137,9 +1152,8 @@ async function loadAsistentes() {
   }
   loading('asist-table');
   try {
-    const d = await apiFetch('GET', `/api/admin/entradas?evento_id=${evId}`);
-    // API devuelve { ok, data: { entradas: [], stats: {} } }
-    const payload    = d.data || d;
+    const d       = await apiFetch('GET', `/api/admin/entradas?evento_id=${evId}`);
+    const payload = d.data || d;
     S.entradas  = extraerArray(payload, 'entradas');
     S.filtradas = [...S.entradas];
     updateStats(payload.stats);
@@ -1151,7 +1165,6 @@ async function loadAsistentes() {
 }
 
 function updateStats(apiStats) {
-  // Usar stats del servidor si vienen; si no, calcular desde el array
   const total      = apiStats?.total      ?? S.entradas.length;
   const validas    = apiStats?.validas    ?? S.entradas.filter(e => e.estado === 'valida').length;
   const usadas     = apiStats?.usadas     ?? S.entradas.filter(e => e.estado === 'usada').length;
@@ -1194,12 +1207,13 @@ function renderTable() {
     return;
   }
   const filas = S.filtradas.map(e => {
-    const nombre  = [e.nombre, e.apellido].filter(Boolean).join(' ') || '—';
-    const tipo    = e.tipo_nombre || e.tipo || '—';
-    const estado  = e.estado || 'pendiente';
-    const origen  = e.origen || 'admin';
-    const cant    = e.cantidad_invitados ?? e.invitados ?? 0;
-    const fecha   = fmtDT(e.created_at || e.fecha_compra);
+    const nombre = [e.nombre, e.apellido].filter(Boolean).join(' ') || '—';
+    const tipo   = e.tipo_nombre || e.tipo || '—';
+    const estado = e.estado || 'pendiente';
+    const origen = e.origen || 'admin';
+    const cant   = e.invitados_count ?? e.cantidad_invitados ?? 0;
+    const por    = e.creado_por ? esc(e.creado_por) : '—';
+    const fecha  = fmtDT(e.creado_at || e.created_at || e.fecha_compra);
     return `
       <tr>
         <td style="font-weight:600">${esc(nombre)}</td>
@@ -1207,6 +1221,7 @@ function renderTable() {
         <td><span class="badge badge-${estado}">${estado}</span></td>
         <td><span class="badge badge-${origen}">${origen}</span></td>
         <td style="text-align:center">${cant}</td>
+        <td style="font-size:11px;color:var(--muted)">${por}</td>
         <td style="font-size:11px;color:var(--muted);white-space:nowrap">${fecha}</td>
         <td style="text-align:center">
           <button class="btn btn-sm btn-danger" onclick="deleteEntrada(${e.id})" title="Eliminar entrada">
@@ -1222,7 +1237,7 @@ function renderTable() {
         <thead>
           <tr>
             <th>Nombre</th><th>Tipo</th><th>Estado</th>
-            <th>Origen</th><th>Invitados</th><th>Fecha</th><th></th>
+            <th>Origen</th><th>Invitados</th><th>Creado por</th><th>Fecha</th><th></th>
           </tr>
         </thead>
         <tbody>${filas}</tbody>
@@ -1233,12 +1248,13 @@ function renderTable() {
 
 function exportCSV() {
   if (!S.filtradas.length) { toast('Sin datos para exportar', 'error'); return; }
-  const cols = ['Nombre','Apellido','Email','Tipo','Estado','Origen','Invitados','Fecha'];
+  const cols = ['Nombre','Apellido','Email','Tipo','Estado','Origen','Invitados','Creado por','Fecha'];
   const rows = S.filtradas.map(e => [
-    e.nombre||'', e.apellido||'', e.email||'',
+    e.nombre||'', e.apellido||'', e.mail||'',
     e.tipo_nombre||e.tipo||'', e.estado||'', e.origen||'',
-    e.cantidad_invitados??0,
-    e.created_at||e.fecha_compra||'',
+    e.invitados_count??0,
+    e.creado_por||'',
+    e.creado_at||e.created_at||e.fecha_compra||'',
   ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
   const csv  = [cols.join(','), ...rows].join('\n');
   const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
@@ -1260,9 +1276,7 @@ async function deleteEvento(id) {
     await apiFetch('DELETE', `/api/admin/eventos/${id}`);
     toast('Evento eliminado', 'success');
     await loadEventos();
-  } catch(e) {
-    toast(`Error: ${e.message}`, 'error');
-  }
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
 }
 
 async function deleteTipo(id) {
@@ -1271,9 +1285,7 @@ async function deleteTipo(id) {
     await apiFetch('DELETE', `/api/admin/tipos-entrada/${id}`);
     toast('Tipo eliminado', 'success');
     await loadTipos();
-  } catch(e) {
-    toast(`Error: ${e.message}`, 'error');
-  }
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
 }
 
 async function deleteEntrada(id) {
@@ -1285,13 +1297,11 @@ async function deleteEntrada(id) {
     S.filtradas = S.filtradas.filter(e => e.id !== id);
     updateStats();
     renderTable();
-  } catch(e) {
-    toast(`Error: ${e.message}`, 'error');
-  }
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
-loadEventos();
+initAuth();
 </script>
 </body>
 </html>

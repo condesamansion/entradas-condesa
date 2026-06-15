@@ -8,5 +8,9 @@ binding = "DB"
 database_name = "entradas-qr-db"
 database_id = "1884e331-876c-4e12-9271-739474c41814"
 
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "entradas-qr-assets"
+
 [vars]
 QR_BASE_URL = "https://entradas-qr-condesa.condesa.workers.dev"

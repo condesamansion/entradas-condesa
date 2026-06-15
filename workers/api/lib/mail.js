@@ -4,7 +4,7 @@
 const RESEND_API = 'https://api.resend.com/emails';
 const FROM = 'Condesa <onboarding@resend.dev>';
 
-export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombre, eventoFecha, qrBase64, qrUrl }) {
+export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombre, eventoFecha, qrBase64 }) {
   const fechaFormateada = formatearFecha(eventoFecha);
   const totalPersonas = 1 + (entrada.invitados_count || 0);
 
@@ -84,7 +84,7 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
             <table cellpadding="0" cellspacing="0" style="background:#f1f1f1;display:inline-table;">
               <tr>
                 <td style="padding:20px;">
-                  <p style="margin:0;color:#888888;font-size:12px;">El QR está adjunto a este mail como archivo <strong style="color:#f1f1f1;">entrada-condesa.svg</strong></p>
+                  <p style="margin:0;color:#f1f1f1;font-size:13px;">Tu QR está adjunto a este mail como <strong>entrada-condesa.png</strong></p>
                 </td>
               </tr>
             </table>
@@ -120,13 +120,11 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
     to: [entrada.mail],
     subject: `Tu entrada para ${eventoNombre} 🎫`,
     html,
-    attachments: [
-      {
-        filename: `entrada-condesa.png`,
-        content: qrBase64,
-        content_type: 'image/png',
-      },
-    ],
+    attachments: [{
+      filename: `entrada-condesa.png`,
+      content: qrBase64,
+      content_type: 'image/png',
+    }],
   };
 
   const res = await fetch(RESEND_API, {

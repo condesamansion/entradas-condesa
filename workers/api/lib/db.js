@@ -18,12 +18,12 @@ export async function getEventoById(db, id) {
 }
 
 export async function createEvento(db, data) {
-  const { nombre, fecha, descripcion, flyer_url } = data;
+  const { nombre, fecha, descripcion, flyer_url, creado_por } = data;
   const r = await db
     .prepare(
-      'INSERT INTO eventos (nombre, fecha, descripcion, flyer_url) VALUES (?, ?, ?, ?)'
+      'INSERT INTO eventos (nombre, fecha, descripcion, flyer_url, creado_por) VALUES (?, ?, ?, ?, ?)'
     )
-    .bind(nombre, fecha, descripcion ?? null, flyer_url ?? null)
+    .bind(nombre, fecha, descripcion ?? null, flyer_url ?? null, creado_por ?? null)
     .run();
   return r.meta.last_row_id;
 }
@@ -63,12 +63,12 @@ export async function getTipoEntradaById(db, id) {
 }
 
 export async function createTipoEntrada(db, data) {
-  const { evento_id, nombre, precio, beneficios, restriccion_edad, cupo_maximo, visible_publico } = data;
+  const { evento_id, nombre, precio, beneficios, restriccion_edad, cupo_maximo, visible_publico, creado_por } = data;
   const r = await db
     .prepare(
       `INSERT INTO tipos_entrada
-        (evento_id, nombre, precio, beneficios, restriccion_edad, cupo_maximo, visible_publico)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+        (evento_id, nombre, precio, beneficios, restriccion_edad, cupo_maximo, visible_publico, creado_por)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       evento_id,
@@ -77,7 +77,8 @@ export async function createTipoEntrada(db, data) {
       beneficios ?? null,
       restriccion_edad ?? null,
       cupo_maximo ?? null,
-      visible_publico ?? 1
+      visible_publico ?? 1,
+      creado_por ?? null
     )
     .run();
   return r.meta.last_row_id;
@@ -136,7 +137,7 @@ export async function getEntradaByToken(db, token) {
 
 export async function getEntradasByEvento(db, eventoId, { tipo_id, estado } = {}) {
   let sql = `
-    SELECT e.*, te.nombre as tipo_nombre, te.precio
+    SELECT e.*, te.nombre as tipo_nombre, te.precio, e.creado_por
     FROM entradas e
     JOIN tipos_entrada te ON te.id = e.tipo_entrada_id
     WHERE e.evento_id = ?`;
@@ -176,7 +177,7 @@ export async function createEntrada(db, data) {
     nombre, apellido, mail, telefono, usuario_ig, dni,
     invitados_count, invitados_detalle,
     qr_token, origen, estado, mensaje_especial,
-    mp_preference_id,
+    mp_preference_id, creado_por,
   } = data;
 
   const r = await db
@@ -185,8 +186,8 @@ export async function createEntrada(db, data) {
         (tipo_entrada_id, evento_id,
          nombre, apellido, mail, telefono, usuario_ig, dni,
          invitados_count, invitados_detalle,
-         qr_token, origen, estado, mensaje_especial, mp_preference_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         qr_token, origen, estado, mensaje_especial, mp_preference_id, creado_por)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       tipo_entrada_id, evento_id,
@@ -197,7 +198,8 @@ export async function createEntrada(db, data) {
       origen ?? 'admin',
       estado ?? 'valida',
       mensaje_especial ?? null,
-      mp_preference_id ?? null
+      mp_preference_id ?? null,
+      creado_por ?? null
     )
     .run();
   return r.meta.last_row_id;

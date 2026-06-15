@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS eventos (
   descripcion TEXT,
   flyer_url   TEXT,                       -- URL pública en R2
   activo      INTEGER DEFAULT 0,          -- 0|1 — solo 1 activo a la vez
-  creado_at   TEXT    DEFAULT (datetime('now'))
+  creado_at   TEXT    DEFAULT (datetime('now')),
+  creado_por  TEXT                        -- usuario del panel que lo creó
 );
 
 -- Tipos de entrada (por evento)
@@ -25,7 +26,8 @@ CREATE TABLE IF NOT EXISTS tipos_entrada (
   restriccion_edad INTEGER,               -- NULL | 16 | 18 | 21
   cupo_maximo      INTEGER,               -- NULL = sin límite
   visible_publico  INTEGER DEFAULT 1,     -- 0|1
-  activo           INTEGER DEFAULT 1
+  activo           INTEGER DEFAULT 1,
+  creado_por       TEXT                   -- usuario del panel que lo creó
 );
 
 -- Entradas individuales (cada QR es una entrada)
@@ -56,9 +58,10 @@ CREATE TABLE IF NOT EXISTS entradas (
   mp_preference_id   TEXT,
   mp_payment_id      TEXT,
 
-  -- Timestamps
+  -- Timestamps y auditoría
   creado_at          TEXT DEFAULT (datetime('now')),
-  usado_at           TEXT
+  usado_at           TEXT,
+  creado_por         TEXT                -- usuario del panel que generó la entrada
 );
 
 -- Índices

@@ -1,30 +1,80 @@
 // workers/api/lib/mail.js
 const RESEND_API = 'https://api.resend.com/emails';
 const FROM = 'Condesa <onboarding@resend.dev>';
+// Cuando el dominio esté verificado en Resend, cambiar a:
+// const FROM = 'Condesa <entradas@condesamansion.com.ar>';
+
+const LOGO_HORIZONTAL_SVG = `<svg width="140" height="30" viewBox="0 0 1012.1 211.3" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.st0{fill:#f1f1f1;}</style></defs>
+  <g>
+    <path class="st0" d="M117.3,13.8c1.1.7,1.9,1.5,2.5,2.6.5,1,.4,2.3-.3,3.7l-16.6,23.6c-.7,1.1-1.5,1.8-2.3,1.9-.8.2-1.8-.1-3-.8-3.2-2.4-6.8-4.3-10.6-5.6-3.9-1.3-8-2-12.3-2s-10.3,1-14.9,3.1c-4.5,2-8.4,4.8-11.7,8.4-3.3,3.6-5.8,7.7-7.7,12.4-1.8,4.7-2.8,9.8-2.8,15.2s.9,10.4,2.8,15.1c1.8,4.7,4.4,8.8,7.7,12.3,3.3,3.5,7.2,6.3,11.7,8.3,4.5,2,9.5,3.1,14.9,3.1s8.5-.7,12.4-2c3.9-1.3,7.5-3.2,10.7-5.7,1.2-.7,2.2-1,3-.9.8.1,1.6.7,2.4,1.8l16.9,24.2c.7,1.4.8,2.7.3,3.6-.5,1-1.3,1.8-2.5,2.5-6.2,4.1-12.8,7.3-19.9,9.6-7.1,2.3-14.6,3.4-22.5,3.4s-13.6-.9-20-2.7c-6.4-1.8-12.4-4.3-18-7.6-5.6-3.3-10.7-7.2-15.2-11.8-4.6-4.6-8.5-9.6-11.8-15.2-3.3-5.5-5.8-11.5-7.6-17.9-1.8-6.4-2.7-13.1-2.7-20s.9-13.6,2.7-20c1.8-6.4,4.3-12.4,7.6-18,3.3-5.6,7.2-10.7,11.8-15.3,4.6-4.6,9.6-8.5,15.2-11.8,5.6-3.2,11.6-5.8,18-7.6,6.4-1.8,13.1-2.7,20-2.7s15.3,1.1,22.3,3.3c7,2.2,13.6,5.4,19.8,9.5Z"/>
+    <path class="st0" d="M129.8,76.4c0-7,.9-13.6,2.7-20,1.8-6.4,4.3-12.4,7.6-18,3.3-5.6,7.2-10.7,11.8-15.3,4.6-4.6,9.6-8.5,15.2-11.8,5.6-3.2,11.6-5.8,18-7.6,6.4-1.8,13.1-2.7,20.1-2.7s13.6.9,20,2.7c6.4,1.8,12.5,4.3,18,7.6,5.6,3.3,10.7,7.2,15.3,11.8,4.6,4.6,8.5,9.7,11.8,15.3,3.3,5.6,5.8,11.6,7.6,18,1.8,6.4,2.7,13.1,2.7,20s-.9,13.6-2.7,20c-1.8,6.4-4.3,12.4-7.6,17.9-3.2,5.5-7.2,10.6-11.8,15.2-4.6,4.6-9.7,8.5-15.3,11.8-5.6,3.3-11.6,5.8-18,7.6-6.4,1.8-13.1,2.7-20,2.7s-13.6-.9-20.1-2.7c-6.4-1.8-12.4-4.3-18-7.6-5.6-3.3-10.7-7.2-15.2-11.8-4.6-4.6-8.5-9.6-11.8-15.2-3.3-5.5-5.8-11.5-7.6-17.9-1.8-6.4-2.7-13.1-2.7-20ZM167.9,76.3c0,5.4.9,10.5,2.8,15.3,1.8,4.7,4.4,8.8,7.7,12.4,3.3,3.5,7.2,6.3,11.8,8.3,4.5,2,9.5,3,14.9,3s10.4-1,15-3c4.6-2,8.5-4.8,11.8-8.3,3.3-3.5,5.9-7.6,7.7-12.4,1.8-4.7,2.8-9.8,2.8-15.3s-.9-10.5-2.8-15.2c-1.8-4.8-4.4-8.9-7.7-12.5-3.3-3.5-7.2-6.3-11.8-8.4-4.6-2-9.6-3.1-15-3.1s-10.4,1-14.9,3.1c-4.5,2-8.4,4.8-11.8,8.4-3.3,3.6-5.9,7.7-7.7,12.5-1.8,4.8-2.8,9.8-2.8,15.2Z"/>
+    <path class="st0" d="M304.9,7.5c0-1.2.4-2.2,1.1-3.1.7-.9,1.8-1.3,3.2-1.3h32.2c.9,0,1.9.2,2.9.7,1,.5,1.8,1.3,2.6,2.4,8.3,13.5,16.6,26.7,24.8,39.8,8.2,13.1,16.5,26.3,24.9,39.8V6.9c.3-1.2.8-2.1,1.6-2.7.8-.7,1.7-1,2.8-1h28.1c1.4,0,2.5.4,3.4,1.1.9.8,1.4,1.8,1.4,3.2v138.1c0,1.3-.4,2.3-1.2,2.9-.8.6-1.9.9-3.2.9h-31.4c-.9,0-1.6-.3-2.3-.9-.7-.6-1.3-1.4-2.1-2.4-8.7-14.4-17.4-28.7-25.9-42.9-8.5-14.1-17.2-28.4-26-42.8v84.6c0,1.4-.3,2.5-1,3.2-.7.7-1.8,1.1-3.6,1.1h-28c-1.5,0-2.6-.4-3.3-1.2-.7-.8-1-1.8-1-3V7.5Z"/>
+    <path class="st0" d="M592.6,76.4c0,7-.9,13.6-2.7,19.8-1.8,6.3-4.3,12.1-7.6,17.5-3.3,5.4-7.2,10.3-11.8,14.7-4.6,4.4-9.6,8.1-15.2,11.2-5.5,3.1-11.5,5.5-18,7.1-6.4,1.7-13.1,2.5-20,2.5h-48.6c-1.2,0-2.2-.3-3.2-.8-.9-.5-1.4-1.7-1.4-3.4V7.7c0-1.4.4-2.5,1.1-3.3.8-.9,1.9-1.3,3.4-1.3h48.6c6.9,0,13.5.9,19.9,2.6,6.4,1.7,12.4,4.1,17.9,7.3,5.5,3.1,10.6,6.9,15.2,11.3,4.6,4.4,8.5,9.3,11.8,14.8,3.3,5.4,5.8,11.3,7.6,17.6,1.8,6.3,2.7,12.9,2.7,19.8ZM502.5,38.4v75.7h8.3c1.5,0,3,0,4.4-.1,1.4-.1,2.9-.2,4.3-.3,4.9-.4,9.5-1.6,13.8-3.6,4.3-2,8-4.6,11.2-7.9,3.2-3.2,5.7-7.1,7.5-11.5,1.8-4.4,2.7-9.2,2.7-14.4s-1-10.6-3.1-15.2c-2.1-4.6-4.9-8.6-8.4-12c-3.5-3.4-7.7-6-12.5-7.9-4.8-1.9-9.8-2.8-15.2-2.8h-13Z"/>
+    <path class="st0" d="M618.4,7.7c0-1.4.4-2.5,1.1-3.3.8-.8,1.8-1.2,3.2-1.2h97.7c1.4,0,2.6.4,3.3,1.3.8.9,1.2,2,1.2,3.4v24.4c0,1.1-.4,2.2-1.2,3.2-.8,1-1.9,1.5-3.4,1.5h-63.8v24.4h49.2c1.2,0,2.3.3,3.1.9s1.2,1.6,1.2,3v21.3c0,.9-.4,1.8-1.1,2.7-.7.9-1.8,1.3-3.2,1.3h-49.3v25.2h66.2c3,0,4.4,1.5,4.4,4.5v24.8c0,.6-.3,1.2-.8,1.8-.3,1.8-1.6,2.7-4,2.7h-99.6c-1.3,0-2.4-.3-3.1-1-.8-.7-1.2-1.8-1.2-3.2V7.7Z"/>
+    <path class="st0" d="M769.7,102.1c1.1.9,2.5,2.2,4.3,3.7,1.7,1.5,3.7,3.1,6,4.6,3.3,2.2,6.7,4,9.9,5.2,3.3,1.2,6.7,1.9,10.3,1.9s6.2-.4,8.4-1.1c2.3-.8,4.1-1.8,5.4-3,1.3-1.2,2.2-2.7,2.8-4.3.6-1.6.8-3.4.8-5.2s-.8-3.9-2.3-5.5c-1.5-1.6-3.4-3-5.7-4.3-2.2-1.2-4.6-2.3-7-3.2-2.4-.9-4.5-1.6-6.3-2.2-7.9-2.8-14.8-5.7-20.7-8.9-5.9-3.2-10.8-6.7-14.8-10.6-3.9-3.9-6.9-8.2-8.9-12.9-2-4.7-3-9.9-3-15.7s1.2-11.6,3.7-16.6c2.5-5,6-9.3,10.5-12.8,4.6-3.5,10.1-6.3,16.5-8.2,6.4-1.9,13.6-2.9,21.6-2.9s11.7.7,17.2,2c5.5,1.3,10.9,3.5,16.2,6.5,2.2,1.3,4.4,2.7,6.4,4.1,2,1.4,3.8,2.8,5.3,4.1,1.5,1.3,2.7,2.6,3.6,3.7.9,1.2,1.3,2.2,1.3,3.1s-.2,1.6-.6,2.4c-.4.7-1.1,1.5-1.9,2.5l-15.1,16.1c-1.1,1.1-2.2,1.7-3.3,1.7s-1.8-.3-2.5-.8c-.8-.5-1.6-1.2-2.5-2l-.9-.8c-1.3-1.1-2.8-2.3-4.4-3.4-1.6-1.2-3.3-2.3-5.2-3.2-1.8-1-3.8-1.7-5.8-2.4-2-.6-4.1-.9-6.2-.9s-4.2.2-6.1.5c-1.9.4-3.6.9-5,1.7-1.4.8-2.6,1.8-3.4,3.1-.9,1.3-1.3,2.8-1.3,4.7s.5,3.4,1.4,4.8c.9,1.3,2.3,2.6,4.1,3.7,1.8,1.1,4.1,2.2,6.8,3.2,2.7,1,5.9,2.1,9.5,3.3,7,2.3,13.4,4.7,19.3,7.2,5.9,2.5,10.9,5.5,15.2,9,4.3,3.4,7.6,7.6,10,12.4,2.4,4.8,3.6,10.6,3.6,17.4s-1.5,13.8-4.4,19.6c-3,5.9-7,10.9-12.2,15-5.2,4.1-11.2,7.3-18.2,9.6-7,2.3-14.4,3.4-22.5,3.4s-15-1.3-22.3-4c-7.3-2.7-14.1-6.3-20.4-10.9-2.6-1.9-4.8-3.8-6.7-5.6-1.8-1.8-3.2-3.3-4.3-4.4l-.3-.3c0-.1-.1-.2-.2-.2,0,0-.1,0-.2-.2,0-.1-.1-.2-.2-.3,0,0-.1,0-.2-.1-1.5-1.6-2.3-3-2.3-4s.8-2.4,2.3-3.8l17-16.3c1.4-1,2.5-1.5,3.3-1.5s1.2.2,1.9.6c.6.4,1.4,1,2.4,1.8Z"/>
+    <path class="st0" d="M922.4,7c0-.4.3-.8.6-1.3.4-.5.8-.9,1.3-1.3.5-.4,1.1-.7,1.7-.9.6-.2,1.1-.3,1.7-.3h25.2c1.1,0,2.1.3,2.9,1,.8.7,1.4,1.3,1.8,1.8l2.5,5.6,51.7,133.4c.5,1.3.4,2.4-.3,3.2-.7.8-2,1.2-3.7,1.2h-28.3c-1.5,0-2.7-.3-3.5-.8-.8-.5-1.5-1.5-1.9-2.8-1.3-3.3-2.6-6.7-3.8-10-1.3-3.3-2.5-6.6-3.7-10h-52.3c-1.2,3.3-2.5,6.7-3.8,10-1.3,3.3-2.5,6.7-3.8,10-.9,2.4-2.5,3.7-5,3.7h-29.1c-1.2,0-2.3-.3-3.1-1-.8-.7-1-.6-.4-3L922.4,7ZM940.3,49.2c-1.2,3.3-2.5,7-3.8,10.8-1.3,3.9-2.5,7.8-3.8,11.7-1.2,3.9-2.5,7.8-3.8,11.7-1.3,3.8-2.5,7.4-3.8,10.8h30.2l-15.1-45Z"/>
+  </g>
+  <rect class="st0" x="330" y="192.9" width="352" height="18.4"/>
+</svg>`;
+
+const SLOGAN_SVG = `<svg width="200" height="10" viewBox="0 0 1020.7 52.5" xmlns="http://www.w3.org/2000/svg">
+  <defs><style>.st0{fill:#555555;}</style></defs>
+  <path class="st0" d="M58.3,50.8l7.9-39.7h5.7l-7,34.8h21.5l-1,4.9h-27.2Z"/>
+  <path class="st0" d="M104,51.1c-2.5,0-4.8-.5-6.8-1.6-2-1-3.6-2.5-4.7-4.5-1.2-1.9-1.7-4.3-1.7-7s.4-4.9,1.3-7.1c.9-2.2,2-4,3.6-5.6,1.5-1.6,3.3-2.8,5.4-3.7,2.1-.9,4.3-1.3,6.7-1.3s4.8.5,6.6,1.4,3.2,2.2,4.2,4c1,1.8,1.5,3.9,1.5,6.4,0,3.7-.6,7-1.9,9.8-1.3,2.9-3.1,5.1-5.5,6.7-2.4,1.6-5.3,2.4-8.6,2.4ZM105.2,46.3c2.3,0,4.3-.5,6.1-1.6,1.8-1.1,3.2-2.6,4.2-4.5,1-1.9,1.5-4.1,1.5-6.6s-.8-4.7-2.3-6.2c-1.6-1.5-3.8-2.2-6.6-2.2s-4.2.5-6,1.6c-1.8,1.1-3.2,2.6-4.2,4.5-1,1.9-1.5,4.1-1.5,6.6s.8,4.7,2.3,6.2c1.5,1.5,3.8,2.3,6.6,2.3ZM113.9,50.8l1.6-7.8,1.8-7,.7-7.1,1.6-8.2h5.4l-6,30.1h-5.2Z"/>
+  <path class="st0" d="M148.3,50.8V1.4h13.8l19.8,32.2h-7.2L194,1.4h13.8v49.3c.1,0-15.1,0-15.1,0v-26.5c-.1,0,2.3,0,2.3,0l-13.2,22.1h-7.4l-13.8-22.1h3v26.5h-15.2Z"/>
+  <path class="st0" d="M210.6,50.8L232.3,1.1h16.4l21.7,49.6h-17.3l-16-41.7h6.5l-16,41.7h-17ZM223.5,42.1l4.3-12.1h22.8l4.3,12.1h-31.3Z"/>
+  <path class="st0" d="M273.1,50.8V1.1h13.8l25.2,30.2h-6.4V1.1h16.3v49.6h-13.8l-25.2-30.2h6.4v30.2h-16.3Z"/>
+  <path class="st0" d="M348.6,51.9c-4.2,0-8.2-.5-12.1-1.4-3.9-.9-7.1-2.2-9.6-3.7l5.4-12.2c2.4,1.4,5,2.5,7.9,3.3,2.9.8,5.7,1.2,8.5,1.2s2.9-.1,3.8-.3c.9-.2,1.6-.5,2-.9.4-.4.6-.9.6-1.5,0-.9-.5-1.6-1.5-2.1-1-.5-2.3-1-3.9-1.3-1.6-.4-3.4-.7-5.4-1.1-1.9-.4-3.9-.9-5.8-1.6-2-.7-3.8-1.5-5.4-2.6-1.6-1.1-2.9-2.5-3.9-4.3s-1.5-4-1.5-6.6.9-5.9,2.6-8.4c1.7-2.5,4.3-4.5,7.7-6.1,3.4-1.5,7.7-2.3,12.8-2.3s6.7.4,9.9,1.1c3.3.7,6.2,1.8,8.8,3.3l-5,12.1c-2.5-1.2-4.8-2.2-7.1-2.8-2.3-.6-4.5-.9-6.7-.9s-2.9.1-3.8.4c-.9.3-1.6.7-2,1.1-.4.5-.6,1-.6,1.6,0,.9.5,1.5,1.5,2s2.3.9,3.9,1.2c1.6.3,3.4.7,5.4,1.1,2,.4,3.9.9,5.8,1.6,1.9.7,3.7,1.5,5.4,2.6,1.6,1.1,2.9,2.5,3.9,4.3,1,1.7,1.5,3.9,1.5,6.5s-.9,5.8-2.6,8.3c-1.7,2.5-4.3,4.6-7.7,6.1-3.4,1.5-7.7,2.3-12.8,2.3Z"/>
+  <path class="st0" d="M376.7,50.8V1.1h16.7v49.6h-16.7Z"/>
+  <path class="st0" d="M427.6,51.9c-4.1,0-7.8-.6-11.2-1.9-3.4-1.3-6.4-3.1-8.9-5.4-2.5-2.3-4.5-5.1-5.8-8.3-1.4-3.2-2.1-6.6-2.1-10.3s.7-7.2,2.1-10.4c1.4-3.1,3.3-5.9,5.8-8.2s5.5-4.1,8.9-5.4c3.4-1.3,7.1-1.9,11.2-1.9s7.8.6,11.2,1.9,6.4,3.1,8.9,5.4,4.5,5.1,5.8,8.2c1.4,3.1,2.1,6.6,2.1,10.4s-.7,7.2-2.1,10.3c-1.4,3.2-3.3,5.9-5.8,8.3-2.5,2.3-5.5,4.1-8.9,5.4-3.4,1.3-7.1,1.9-11.1,1.9ZM427.5,38.4c1.6,0,3-.3,4.4-.9s2.5-1.4,3.5-2.4c1-1.1,1.8-2.4,2.4-3.9.6-1.5.9-3.3.9-5.2s-.3-3.7-.9-5.2c-.6-1.5-1.4-2.8-2.4-3.9-1-1.1-2.2-1.9-3.5-2.4s-2.8-.9-4.4-.9-3,.3-4.4.9-2.5,1.4-3.5,2.4c-1,1.1-1.8,2.4-2.4,3.9-.6,1.5-.9,3.3-.9,5.2s.3,3.7.9,5.2c.6,1.5,1.4,2.8,2.4,3.9,1,1.1,2.2,1.9,3.5,2.4,1.3.6,2.8.9,4.4.9Z"/>
+  <path class="st0" d="M461.6,50.8V1.1h13.8l25.2,30.2h-6.4V1.1h16.3v49.6h-13.8l-25.2-30.2h6.4v30.2h-16.3Z"/>
+  <path class="st0" d="M775.1,51.4h-16.7V1.8h40.3v12.6h-23.6v37ZM774,22.9h21.8v12.6h-21.8v-12.6Z"/>
+  <path class="st0" d="M804,51.4V1.8h16.7v49.6h-16.7Z"/>
+  <path class="st0" d="M845.3,38.8h24.8v12.6h-41.3V1.8h40.3v12.6h-23.9v24.4ZM844.1,20.2h22.1v12.1h-22.1v-12.1Z"/>
+  <path class="st0" d="M895,52.5c-4.2,0-8.2-.5-12.1-1.4-3.9-.9-7.1-2.2-9.6-3.7l5.4-12.2c2.4,1.4,5,2.5,7.9,3.3,2.9.8,5.7,1.2,8.5,1.2s2.9-.1,3.8-.3c.9-.2,1.6-.5,2-.9s.6-.9.6-1.5c0-.9-.5-1.6-1.5-2.1-1-.5-2.3-1-3.9-1.3-1.6-.4-3.4-.7-5.4-1.1-1.9-.4-3.9-.9-5.8-1.6-2-.7-3.8-1.5-5.4-2.6-1.6-1.1-2.9-2.5-3.9-4.3s-1.5-4-1.5-6.6.9-5.9,2.6-8.4c1.7-2.5,4.3-4.5,7.7-6.1,3.4-1.5,7.7-2.3,12.8-2.3s6.7.4,9.9,1.1c3.3.7,6.2,1.8,8.8,3.3l-5,12.1c-2.5-1.2-4.8-2.1-7.1-2.8-2.3-.6-4.5-.9-6.7-.9s-2.9.1-3.8.4-1.6.7-2,1.1c-.4.5-.6,1-.6,1.6,0,.9.5,1.5,1.5,2s2.3.9,3.9,1.2c1.6.3,3.4.7,5.4,1.1,2,.4,3.9.9,5.8,1.6,1.9.7,3.7,1.5,5.4,2.6s2.9,2.5,3.9,4.3c1,1.7,1.5,3.9,1.5,6.5s-.9,5.8-2.6,8.3c-1.7,2.5-4.3,4.6-7.7,6.1-3.4,1.5-7.7,2.3-12.8,2.3Z"/>
+  <path class="st0" d="M933.2,51.4V14.8h-14.5V1.8h45.8v13h-14.5v36.6h-16.7Z"/>
+  <path class="st0" d="M960.9,51.4l21.7-49.6h16.4l21.7,49.6h-17.3l-16-41.7h6.5l-16,41.7h-17ZM973.8,42.8l4.3-12.1h22.8l4.3,12.1h-31.3Z"/>
+  <path class="st0" d="M0,38.8l1.3-6.4h44.5l-1.3,6.4H0ZM5.6,50.8L21.4,1.4h6.6l-15.8,49.4h-6.6ZM6.1,19.8l1.2-6.4h44.6l-1.3,6.4H6.1ZM23.9,50.8L39.7,1.4h6.6l-15.8,49.4h-6.6Z"/>
+</svg>`;
 
 export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombre, eventoFecha, qrBase64, qrUrl }) {
   const fechaFormateada = formatearFecha(eventoFecha);
   const totalPersonas = 1 + (entrada.invitados_count || 0);
 
-  const invitadosTexto = entrada.invitados_count > 0
-    ? `<p style="margin:4px 0 0;color:#888888;font-size:13px;">+ ${entrada.invitados_count} invitado${entrada.invitados_count > 1 ? 's' : ''}</p>`
-    : '';
+  let invitadosTexto = '';
+  if (entrada.invitados_count > 0) {
+    let detalle = '';
+    if (entrada.invitados_detalle) {
+      try {
+        const nombres = JSON.parse(entrada.invitados_detalle);
+        if (Array.isArray(nombres) && nombres.length > 0) {
+          detalle = nombres.map(n => `<span style="display:inline-block;margin:2px 6px 2px 0;color:#aaaaaa;font-size:12px;">+ ${n}</span>`).join('');
+        }
+      } catch(e) {}
+    }
+    invitadosTexto = detalle
+      ? `<p style="margin:8px 0 0;color:#888888;font-size:12px;line-height:1.8;">${detalle}</p>`
+      : `<p style="margin:4px 0 0;color:#888888;font-size:13px;">+ ${entrada.invitados_count} invitado${entrada.invitados_count > 1 ? 's' : ''}</p>`;
+  }
 
   const mensajeEspecial = entrada.mensaje_especial
-    ? `<div style="border-left:3px solid #f1f1f1;padding:12px 16px;margin:24px 0;background:#2a2a2a;">
-        <p style="color:#f1f1f1;margin:0;font-size:13px;line-height:1.5;">${entrada.mensaje_especial}</p>
-       </div>`
+    ? `<tr><td style="padding:0 40px 24px;">
+        <div style="border-left:3px solid #f1f1f1;padding:12px 16px;background:#2a2a2a;">
+          <p style="color:#f1f1f1;margin:0;font-size:13px;line-height:1.5;">${entrada.mensaje_especial}</p>
+        </div>
+       </td></tr>`
     : '';
 
-  const logoSvg = `<svg width="48" height="38" viewBox="0 0 1010.6 797.7" xmlns="http://www.w3.org/2000/svg">
-    <path fill="#f1f1f1" d="M728.1,332.9c8.6-39.6,13.5-74.4,11.6-111.2C734,91.3,642,0,505.3,0S276.5,91.1,270.8,221.6c-1.7,35.5,2.5,68.9,11.7,111.2c20.2,96.5,59.6,204.8,100.4,292.4c33.5,1.3,70.5,2,110.8,2c-94-136-186.4-443.7,11.7-443.7s105.8,307.7,11.7,443.7c40.3,0,77.2-0.8,110.8-2C668,537.4,707.9,429.2,728.1,332.9z"/>
-    <path fill="#f1f1f1" d="M148,434.2c-14.4-92.8,55-129.4,116.6-109.1c-8-40.6-12.7-76.5-8.7-117.9c-25.2-21.6-63.2-42.1-113.6-42.1S-21.5,196.5,4.2,350.2c16.9,101.5,110.8,197.4,172.6,251l27.5,5.7c20,5.1,47.4,9.3,81.5,12.5C239.9,581.4,160.3,507.3,148,434.2z"/>
-    <path fill="#f1f1f1" d="M868.3,165.1c-50.4,0-88.4,20.5-113.6,42.1c2.6,27.2,1.6,56-3,85.7c-1.7,10.7-3.6,21.5-5.7,32.2c10.2-3.4,21.7-5.4,34.3-5.4c42.6,0,95.1,32,82.3,114.5c-11.3,73-90.9,147.2-137.9,185.2c59.5-5.7,109-18.2,109-18.2c61.8-53.5,155.7-149.4,172.6-251C1032.1,196.5,933.8,165.1,868.3,165.1z"/>
-  </svg>`;
+  const camposExtra = [
+    entrada.telefono ? `<p style="margin:4px 0 0;color:#666666;font-size:12px;">📞 ${entrada.telefono}</p>` : '',
+    entrada.usuario_ig ? `<p style="margin:4px 0 0;color:#666666;font-size:12px;">@ ${entrada.usuario_ig}</p>` : '',
+    entrada.dni ? `<p style="margin:4px 0 0;color:#555555;font-size:12px;">DNI ${entrada.dni}</p>` : '',
+  ].filter(Boolean).join('');
 
   const qrBlock = qrUrl
     ? `<img src="${qrUrl}" width="260" height="260" alt="Código QR de ingreso" style="display:block;border:0;" />`
-    : `<p style="margin:0;color:#888888;font-size:13px;">Tu QR está adjunto a este mail como <strong>entrada-condesa.png</strong></p>`;
+    : `<p style="margin:0;color:#888888;font-size:13px;">Tu QR está adjunto como <strong>entrada-condesa.png</strong></p>`;
 
   const html = `<!DOCTYPE html>
 <html lang="es">
@@ -39,46 +89,39 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
       <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#222222;">
 
         <tr>
-          <td style="padding:32px 40px 24px;border-bottom:1px solid #333333;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td>${logoSvg}</td>
-                <td align="right" style="vertical-align:middle;">
-                  <span style="color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Vertical Producciones</span>
-                </td>
-              </tr>
-            </table>
+          <td style="padding:32px 40px 28px;border-bottom:1px solid #2a2a2a;">
+            ${LOGO_HORIZONTAL_SVG}
           </td>
         </tr>
 
         <tr>
           <td style="padding:32px 40px 0;">
-            <p style="margin:0 0 8px;color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">${fechaFormateada}</p>
-            <h1 style="margin:0 0 8px;color:#f1f1f1;font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1;">${eventoNombre}</h1>
+            <p style="margin:0 0 8px;color:#666666;font-size:10px;letter-spacing:3px;text-transform:uppercase;">${fechaFormateada}</p>
+            <h1 style="margin:0;color:#f1f1f1;font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1;">${eventoNombre}</h1>
           </td>
         </tr>
 
         <tr>
           <td style="padding:24px 40px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #333333;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2e2e2e;">
               <tr>
                 <td style="padding:20px 24px;">
-                  <p style="margin:0 0 4px;color:#888888;font-size:10px;letter-spacing:2px;text-transform:uppercase;">Titular</p>
-                  <p style="margin:0;color:#f1f1f1;font-size:22px;font-weight:700;">${entrada.nombre} ${entrada.apellido}</p>
-                  <p style="margin:6px 0 0;color:#888888;font-size:13px;">${tipoNombre} &nbsp;·&nbsp; ${totalPersonas} persona${totalPersonas > 1 ? 's' : ''}</p>
+                  <p style="margin:0 0 4px;color:#666666;font-size:10px;letter-spacing:2px;text-transform:uppercase;">Titular</p>
+                  <p style="margin:0 0 4px;color:#f1f1f1;font-size:22px;font-weight:700;">${entrada.nombre} ${entrada.apellido}</p>
+                  <p style="margin:0;color:#888888;font-size:13px;">${tipoNombre} &nbsp;·&nbsp; ${totalPersonas} persona${totalPersonas > 1 ? 's' : ''}</p>
                   ${invitadosTexto}
-                  ${entrada.dni ? `<p style="margin:6px 0 0;color:#555555;font-size:12px;">DNI: ${entrada.dni}</p>` : ''}
+                  ${camposExtra}
                 </td>
               </tr>
             </table>
           </td>
         </tr>
 
-        ${mensajeEspecial ? `<tr><td style="padding:0 40px 24px;">${mensajeEspecial}</td></tr>` : ''}
+        ${mensajeEspecial}
 
         <tr>
           <td align="center" style="padding:0 40px 40px;">
-            <p style="margin:0 0 20px;color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Código de ingreso</p>
+            <p style="margin:0 0 20px;color:#666666;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Código de ingreso</p>
             <table cellpadding="0" cellspacing="0" style="background:#f5f5f5;display:inline-table;">
               <tr>
                 <td style="padding:20px;">
@@ -86,22 +129,22 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
                 </td>
               </tr>
             </table>
-            <p style="margin:16px 0 0;color:#555555;font-size:11px;letter-spacing:1px;">Presentá este QR en la puerta · Uso único</p>
+            <p style="margin:16px 0 0;color:#444444;font-size:11px;letter-spacing:1px;">Presentá este QR en la puerta · Uso único</p>
           </td>
         </tr>
 
         <tr>
-          <td style="padding:24px 40px;border-top:1px solid #333333;">
-            <p style="margin:0;color:#444444;font-size:11px;line-height:1.6;">
+          <td align="center" style="padding:0 40px 32px;">
+            ${SLOGAN_SVG}
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid #2a2a2a;">
+            <p style="margin:0;color:#3a3a3a;font-size:11px;line-height:1.6;">
               Esta entrada es personal e intransferible. El código QR solo puede escanearse una vez.
               Si tenés algún problema, contactanos por Instagram.
             </p>
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:20px 40px;background:#1a1a1a;">
-            <p style="margin:0;color:#333333;font-size:11px;">© Condesa · Vertical Producciones</p>
           </td>
         </tr>
 

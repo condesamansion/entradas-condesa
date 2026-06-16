@@ -1,10 +1,8 @@
 // workers/api/lib/mail.js
-// Envío de mails transaccionales via Resend
-
 const RESEND_API = 'https://api.resend.com/emails';
 const FROM = 'Condesa <onboarding@resend.dev>';
 
-export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombre, eventoFecha, qrBase64 }) {
+export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombre, eventoFecha, qrBase64, qrUrl }) {
   const fechaFormateada = formatearFecha(eventoFecha);
   const totalPersonas = 1 + (entrada.invitados_count || 0);
 
@@ -24,6 +22,10 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
     <path fill="#f1f1f1" d="M868.3,165.1c-50.4,0-88.4,20.5-113.6,42.1c2.6,27.2,1.6,56-3,85.7c-1.7,10.7-3.6,21.5-5.7,32.2c10.2-3.4,21.7-5.4,34.3-5.4c42.6,0,95.1,32,82.3,114.5c-11.3,73-90.9,147.2-137.9,185.2c59.5-5.7,109-18.2,109-18.2c61.8-53.5,155.7-149.4,172.6-251C1032.1,196.5,933.8,165.1,868.3,165.1z"/>
   </svg>`;
 
+  const qrBlock = qrUrl
+    ? `<img src="${qrUrl}" width="260" height="260" alt="Código QR de ingreso" style="display:block;border:0;" />`
+    : `<p style="margin:0;color:#888888;font-size:13px;">Tu QR está adjunto a este mail como <strong>entrada-condesa.png</strong></p>`;
+
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,7 +38,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#222222;">
 
-        <!-- Header con logo -->
         <tr>
           <td style="padding:32px 40px 24px;border-bottom:1px solid #333333;">
             <table width="100%" cellpadding="0" cellspacing="0">
@@ -50,7 +51,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
           </td>
         </tr>
 
-        <!-- Evento -->
         <tr>
           <td style="padding:32px 40px 0;">
             <p style="margin:0 0 8px;color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">${fechaFormateada}</p>
@@ -58,7 +58,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
           </td>
         </tr>
 
-        <!-- Titular -->
         <tr>
           <td style="padding:24px 40px;">
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #333333;">
@@ -77,14 +76,13 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
 
         ${mensajeEspecial ? `<tr><td style="padding:0 40px 24px;">${mensajeEspecial}</td></tr>` : ''}
 
-        <!-- QR -->
         <tr>
-          <td align="center" style="padding:0 40px 32px;">
-            <p style="margin:0 0 16px;color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Código de ingreso</p>
-            <table cellpadding="0" cellspacing="0" style="background:#f1f1f1;display:inline-table;">
+          <td align="center" style="padding:0 40px 40px;">
+            <p style="margin:0 0 20px;color:#888888;font-size:10px;letter-spacing:3px;text-transform:uppercase;">Código de ingreso</p>
+            <table cellpadding="0" cellspacing="0" style="background:#f5f5f5;display:inline-table;">
               <tr>
                 <td style="padding:20px;">
-                  <p style="margin:0;color:#f1f1f1;font-size:13px;">Tu QR está adjunto a este mail como <strong>entrada-condesa.png</strong></p>
+                  ${qrBlock}
                 </td>
               </tr>
             </table>
@@ -92,7 +90,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
           </td>
         </tr>
 
-        <!-- Footer -->
         <tr>
           <td style="padding:24px 40px;border-top:1px solid #333333;">
             <p style="margin:0;color:#444444;font-size:11px;line-height:1.6;">
@@ -102,7 +99,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
           </td>
         </tr>
 
-        <!-- Bottom -->
         <tr>
           <td style="padding:20px 40px;background:#1a1a1a;">
             <p style="margin:0;color:#333333;font-size:11px;">© Condesa · Vertical Producciones</p>
@@ -115,16 +111,18 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
 </body>
 </html>`;
 
+  const attachments = qrUrl ? [] : [{
+    filename: 'entrada-condesa.png',
+    content: qrBase64,
+    content_type: 'image/png',
+  }];
+
   const payload = {
     from: FROM,
     to: [entrada.mail],
     subject: `Tu entrada para ${eventoNombre} 🎫`,
     html,
-    attachments: [{
-      filename: `entrada-condesa.png`,
-      content: qrBase64,
-      content_type: 'image/png',
-    }],
+    ...(attachments.length > 0 && { attachments }),
   };
 
   const res = await fetch(RESEND_API, {
@@ -137,8 +135,8 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Resend error ${res.status}: ${err}`);
+    const errText = await res.text();
+    throw new Error(`Resend error ${res.status}: ${errText}`);
   }
 
   return res.json();

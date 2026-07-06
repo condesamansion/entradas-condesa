@@ -81,5 +81,7 @@ function resumenEntrada(e) {
     evento: e.evento_nombre,
     origen: e.origen,
     dni: e.dni,
+    telefono: e.telefono,
+    usuario_ig: e.usuario_ig,
   };
 }

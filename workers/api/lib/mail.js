@@ -55,14 +55,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
       : `<p style="margin:4px 0 0;color:#888888;font-size:13px;">+ ${entrada.invitados_count} invitado${entrada.invitados_count > 1 ? 's' : ''}</p>`;
   }
 
-  const mensajeEspecial = entrada.mensaje_especial
-    ? `<tr><td style="padding:0 40px 24px;">
-        <div style="border-left:3px solid #f1f1f1;padding:12px 16px;background:#2a2a2a;">
-          <p style="color:#f1f1f1;margin:0;font-size:13px;line-height:1.5;">${entrada.mensaje_especial}</p>
-        </div>
-       </td></tr>`
-    : '';
-
   const camposExtra = [
     entrada.telefono ? `<p style="margin:4px 0 0;color:#666666;font-size:12px;">📞 ${entrada.telefono}</p>` : '',
     entrada.usuario_ig ? `<p style="margin:4px 0 0;color:#666666;font-size:12px;">@ ${entrada.usuario_ig}</p>` : '',
@@ -113,8 +105,6 @@ export async function enviarMailQR({ resendKey, entrada, tipoNombre, eventoNombr
             </table>
           </td>
         </tr>
-
-        ${mensajeEspecial}
 
         <tr>
           <td align="center" style="padding:0 40px 40px;">

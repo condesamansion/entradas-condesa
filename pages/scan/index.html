@@ -233,6 +233,14 @@
       max-width: 280px;
     }
 
+    .r-nota {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,220,50,.85);
+      text-align: center;
+      max-width: 280px;
+    }
+
     .btn-next {
       position: fixed;
       bottom: 44px;
@@ -288,6 +296,7 @@
     <div id="r-nombre" class="r-nombre"></div>
     <div id="r-tipo" class="r-tipo"></div>
     <div id="r-personas" class="r-personas"></div>
+    <div id="r-invitados" class="r-sub" style="font-weight:600;"></div>
     <div id="r-sub" class="r-sub"></div>
     <div id="r-mensaje" class="r-mensaje"></div>
     <button class="btn-next" onclick="volver()">SIGUIENTE</button>
@@ -414,7 +423,7 @@
       const e       = d.entrada || {};
 
       // Reset
-      ['r-nombre','r-tipo','r-personas','r-sub','r-mensaje'].forEach(id => {
+      ['r-nombre','r-tipo','r-personas','r-invitados','r-sub','r-mensaje'].forEach(id => {
         document.getElementById(id).textContent = '';
       });
 
@@ -423,21 +432,34 @@
         document.getElementById('r-mark').textContent  = '✓';
         document.getElementById('r-title').textContent = 'VÁLIDO';
 
-        document.getElementById('r-nombre').textContent  = e.nombre || '';
-        document.getElementById('r-tipo').textContent    = e.tipo   || '';
+        document.getElementById('r-nombre').textContent = e.nombre || '';
+        document.getElementById('r-tipo').textContent   = e.tipo   || '';
 
         const total = e.total_personas || 1;
         document.getElementById('r-personas').textContent =
           total === 1 ? '1 persona' : `${total} personas`;
 
+        // Invitados con nombres
+        const invitadosEl = document.getElementById('r-invitados');
+        if (e.invitados_detalle && e.invitados_detalle.length > 0) {
+          invitadosEl.textContent = e.invitados_detalle.map(n => `+ ${n}`).join('   ');
+        } else if (e.invitados_count > 0) {
+          invitadosEl.textContent = `+ ${e.invitados_count} invitado${e.invitados_count > 1 ? 's' : ''}`;
+        }
+
+        // Info extra
         const subs = [];
-        if (e.invitados_count > 0) subs.push(`+ ${e.invitados_count} invitado${e.invitados_count > 1 ? 's' : ''}`);
-        if (e.beneficios)          subs.push(e.beneficios);
-        if (e.dni)                 subs.push(`DNI: ${e.dni}`);
+        if (e.dni)        subs.push(`DNI ${e.dni}`);
+        if (e.telefono)   subs.push(`📞 ${e.telefono}`);
+        if (e.usuario_ig) subs.push(`@ ${e.usuario_ig}`);
+        if (e.beneficios) subs.push(e.beneficios);
         document.getElementById('r-sub').textContent = subs.join('  ·  ');
 
+        // Nota interna
+        const msgEl = document.getElementById('r-mensaje');
         if (e.mensaje_especial) {
-          document.getElementById('r-mensaje').textContent = `"${e.mensaje_especial}"`;
+          msgEl.textContent = `⚑ ${e.mensaje_especial}`;
+          msgEl.style.color = 'rgba(255,220,50,.85)';
         }
 
       } else if (d.resultado === 'usada') {

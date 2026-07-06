@@ -28,7 +28,8 @@ export default {
       // ── Endpoints públicos ─────────────────────────────────
       else if (
         pathname === '/api/evento-activo' ||
-        pathname === '/api/entradas'
+        pathname === '/api/entradas' ||
+        pathname === '/api/landing'
       ) {
         response = await handlePublico(request, env, pathname);
       }

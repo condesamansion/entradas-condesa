@@ -12,7 +12,7 @@ export async function getEventosActivos(db) {
 }
 
 export async function getEventos(db) {
-  return (await db.prepare('SELECT * FROM eventos ORDER BY creado_at DESC').all()).results;
+  return (await db.prepare('SELECT * FROM eventos ORDER BY fecha ASC').all()).results;
 }
 
 export async function getEventoById(db, id) {

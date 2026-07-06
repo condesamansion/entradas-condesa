@@ -300,18 +300,26 @@ async function init() {
   try {
     const raw  = await fetch(API + '/api/landing');
     const json = await raw.json();
-    const d    = json.data || json;
+    const d    = (json.data || json);
     const cfg  = d.config || {};
 
     if (cfg.hero_url) {
-      document.getElementById('hero-bg').src = cfg.hero_url;
+      const img = document.getElementById('hero-bg');
+      if (img) {
+        img.src = cfg.hero_url;
+        img.style.display = 'block';
+      }
     }
     if (cfg.hero_url_mobile) {
-      document.getElementById('hero-bg-mobile').src = cfg.hero_url_mobile;
-    } else if (cfg.hero_url) {
-      document.getElementById('hero-bg-mobile').src = cfg.hero_url;
+      const img = document.getElementById('hero-bg-mobile');
+      if (img) {
+        img.src = cfg.hero_url_mobile;
+        img.style.display = 'block';
+      }
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('Error cargando landing:', e);
+  }
 }
 
 init();

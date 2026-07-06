@@ -69,13 +69,12 @@ export async function handleAdmin(request, env, pathname) {
     if (!file) return err('No se envió archivo');
 
     const bytes = await file.arrayBuffer();
-    const uint8 = new Uint8Array(bytes);
-    let bin = '';
-    for (let i = 0; i < uint8.length; i++) bin += String.fromCharCode(uint8[i]);
-    const dataUrl = `data:${file.type};base64,${btoa(bin)}`;
+    const key   = `flyers/evento-${id}-${Date.now()}.${file.type.split('/')[1] || 'jpg'}`;
+    await env.BUCKET.put(key, bytes, { httpMetadata: { contentType: file.type } });
+    const url = `https://assets.condesamansion.com.ar/${key}`;
 
-    await updateEvento(env.DB, id, { flyer_url: dataUrl });
-    return ok({ flyer_url: dataUrl });
+    await updateEvento(env.DB, id, { flyer_url: url });
+    return ok({ flyer_url: url });
   }
 
   // ── Tipos de entrada ───────────────────────────────────────

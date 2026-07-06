@@ -103,7 +103,10 @@ async function init() {
     const d   = res.data || res;
     const cfg = d.config || {};
 
-    const heroUrl = cfg.hero_url_mobile || cfg.hero_url;
+    const isMobile = window.innerWidth <= 768;
+    const heroUrl = isMobile
+      ? (cfg.hero_url_mobile || cfg.hero_url)
+      : (cfg.hero_url || cfg.hero_url_mobile);
     if (heroUrl) {
       const img = document.createElement('img');
       img.className = 'hero-band-bg';

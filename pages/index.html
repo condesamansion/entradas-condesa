@@ -78,11 +78,9 @@
     }
     @media (max-width: 768px) {
       #hero-bg { display: none !important; }
-      #hero-bg-mobile { display: block !important; }
     }
     @media (min-width: 769px) {
       #hero-bg-mobile { display: none !important; }
-      #hero-bg { display: block !important; }
     }
     .hero-overlay {
       position: absolute;
@@ -106,7 +104,7 @@
       text-align: center;
     }
     .hero-logo { width: min(220px, 55vw); }
-    .hero-slogan { width: min(260px, 65vw); opacity: .75; }
+    .hero-slogan { width: min(200px, 50vw); opacity: .65; margin-top: 4px; }
     .hero-scroll {
       position: absolute;
       bottom: 32px;
@@ -310,6 +308,8 @@ async function init() {
     }
     if (cfg.hero_url_mobile) {
       document.getElementById('hero-bg-mobile').src = cfg.hero_url_mobile;
+    } else if (cfg.hero_url) {
+      document.getElementById('hero-bg-mobile').src = cfg.hero_url;
     }
   } catch(e) {}
 }

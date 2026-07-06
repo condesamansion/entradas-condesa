@@ -1643,19 +1643,26 @@ async function guardarHero() {
   const file = document.getElementById('hero-file').files[0];
   if (!file) { toast('Seleccioná una imagen', 'error'); return; }
 
-  const bytes = await file.arrayBuffer();
-  const uint8 = new Uint8Array(bytes);
-  let bin = '';
-  for (let i = 0; i < uint8.length; i++) bin += String.fromCharCode(uint8[i]);
-  const dataUrl = `data:${file.type};base64,${btoa(bin)}`;
+  const btn = document.querySelector('[onclick="guardarHero()"]');
+  btn.disabled = true; btn.textContent = 'Subiendo…';
 
   try {
-    await apiFetch('POST', '/api/admin/config', { hero_url: dataUrl });
-    document.getElementById('hero-img').src = dataUrl;
+    const fd = new FormData();
+    fd.append('hero', file);
+    const res = await fetch(`${API}/api/admin/hero`, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || `Error ${res.status}`);
+    }
+    const data = await res.json();
+    const url  = data?.data?.url || data?.url;
+    document.getElementById('hero-img').src = url;
     document.getElementById('hero-preview').style.display = 'block';
     toast('Foto hero guardada', 'success');
   } catch(e) {
     toast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar foto hero';
   }
 }
 

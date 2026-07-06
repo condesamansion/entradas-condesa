@@ -293,7 +293,25 @@ export async function handleAdmin(request, env, pathname) {
 
   // ── Config (hero) ──────────────────────────────────────────
 
-  // POST /api/admin/config
+  // POST /api/admin/hero (sube imagen a R2 y guarda URL en config)
+  if (pathname === '/api/admin/hero' && method === 'POST') {
+    const formData = await request.formData();
+    const file = formData.get('hero');
+    if (!file) return err('No se envió archivo');
+
+    const bytes = await file.arrayBuffer();
+    const key = `hero/hero.${file.type.split('/')[1] || 'jpg'}`;
+    await env.BUCKET.put(key, bytes, {
+      httpMetadata: { contentType: file.type },
+    });
+    const url = `https://assets.condesamansion.com.ar/${key}`;
+    await env.DB.prepare(
+      'INSERT INTO config (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor'
+    ).bind('hero_url', url).run();
+    return ok({ url });
+  }
+
+  // POST /api/admin/config (para otros valores clave/valor)
   if (pathname === '/api/admin/config' && method === 'POST') {
     const body = await parseBody(request);
     for (const [clave, valor] of Object.entries(body)) {

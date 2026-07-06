@@ -311,6 +311,21 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ url });
   }
 
+  // POST /api/admin/hero-mobile
+  if (pathname === '/api/admin/hero-mobile' && method === 'POST') {
+    const formData = await request.formData();
+    const file = formData.get('hero');
+    if (!file) return err('No se envió archivo');
+    const bytes = await file.arrayBuffer();
+    const key = `hero/hero-mobile.${file.type.split('/')[1] || 'jpg'}`;
+    await env.BUCKET.put(key, bytes, { httpMetadata: { contentType: file.type } });
+    const url = `https://assets.condesamansion.com.ar/${key}`;
+    await env.DB.prepare(
+      'INSERT INTO config (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor'
+    ).bind('hero_url_mobile', url).run();
+    return ok({ url });
+  }
+
   // POST /api/admin/config (para otros valores clave/valor)
   if (pathname === '/api/admin/config' && method === 'POST') {
     const body = await parseBody(request);

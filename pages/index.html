@@ -76,6 +76,14 @@
       object-fit: cover;
       object-position: center;
     }
+    @media (max-width: 768px) {
+      #hero-bg { display: none !important; }
+      #hero-bg-mobile { display: block !important; }
+    }
+    @media (min-width: 769px) {
+      #hero-bg-mobile { display: none !important; }
+      #hero-bg { display: block !important; }
+    }
     .hero-overlay {
       position: absolute;
       inset: 0;
@@ -559,10 +567,8 @@
 
     <!-- HERO -->
     <div class="hero" id="hero">
-      <picture>
-        <source id="hero-src-mobile" media="(max-width: 768px)" srcset="">
-        <img id="hero-bg" class="hero-bg" src="" alt="" style="display:none">
-      </picture>
+      <img id="hero-bg-mobile" class="hero-bg" src="" alt="" style="display:none">
+      <img id="hero-bg" class="hero-bg" src="" alt="" style="display:none">
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <img class="hero-logo" src="https://condesamansion.com.ar/logo.svg" alt="Condesa">
@@ -610,7 +616,7 @@
     <footer class="footer">
       <img class="footer-logo" src="https://condesamansion.com.ar/logo.svg" alt="Condesa">
       <img class="footer-slogan" src="https://condesamansion.com.ar/slogan.svg" alt="#LaMansionEstaDeFiesta">
-      <div class="footer-copy">© Condesa · Río Cuarto</div>
+      <div class="footer-copy">© Condesa · Alcira Gigena</div>
     </footer>
 
   </div>
@@ -652,10 +658,10 @@ async function init() {
     if (d.config?.hero_url) {
       const img = document.getElementById('hero-bg');
       img.src = d.config.hero_url;
-      img.style.display = 'block';
     }
     if (d.config?.hero_url_mobile) {
-      document.getElementById('hero-src-mobile').srcset = d.config.hero_url_mobile;
+      const img = document.getElementById('hero-bg-mobile');
+      img.src = d.config.hero_url_mobile;
     }
 
     renderEventos(d.eventos || []);

@@ -237,5 +237,40 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ deleted: id });
   }
 
+  // GET /api/admin/contactos
+  if (pathname === '/api/admin/contactos' && method === 'GET') {
+    const contactos = await env.DB
+      .prepare('SELECT * FROM contactos ORDER BY nombre, apellido')
+      .all();
+    return ok(contactos.results || []);
+  }
+
+  // POST /api/admin/contactos
+  if (pathname === '/api/admin/contactos' && method === 'POST') {
+    const body = await parseBody(request);
+    if (!body.nombre || !body.apellido) return err('Nombre y apellido son requeridos');
+    const existing = await env.DB
+      .prepare('SELECT id FROM contactos WHERE dni = ? AND dni != ""')
+      .bind(body.dni || '').first();
+    if (existing) return err('Ya existe un contacto con ese DNI', 409);
+    await env.DB.prepare(`
+      INSERT INTO contactos (nombre, apellido, mail, telefono, usuario_ig, dni)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).bind(
+      body.nombre, body.apellido,
+      body.mail || '', body.telefono || '',
+      body.usuario_ig || '', body.dni || ''
+    ).run();
+    return ok({ ok: true }, 201);
+  }
+
+  // DELETE /api/admin/contactos/:id
+  const contactoMatch = pathname.match(/^\/api\/admin\/contactos\/(\d+)$/);
+  if (contactoMatch && method === 'DELETE') {
+    await env.DB.prepare('DELETE FROM contactos WHERE id = ?')
+      .bind(parseInt(contactoMatch[1])).run();
+    return ok({ deleted: true });
+  }
+
   return null; // no matcheó ningún endpoint admin
 }

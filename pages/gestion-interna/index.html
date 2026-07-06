@@ -405,6 +405,7 @@
   <button class="nav-tab active" data-tab="eventos">Eventos</button>
   <button class="nav-tab" data-tab="tipos">Tipos de Entrada</button>
   <button class="nav-tab" data-tab="invitaciones">Invitaciones</button>
+  <button class="nav-tab" data-tab="contactos">Contactos</button>
   <button class="nav-tab" data-tab="asistentes">Asistentes</button>
 </nav>
 
@@ -444,6 +445,17 @@
       <h1 class="section-title">Nueva Invitación</h1>
     </div>
     <div id="inv-wrap"></div>
+  </section>
+
+  <!-- ═══ CONTACTOS ═══ -->
+  <section id="sec-contactos" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Contactos</h1>
+      <button class="btn btn-primary" onclick="openContactoModal()">+ Nuevo contacto</button>
+    </div>
+    <div id="contactos-list">
+      <div class="loading"><div class="spinner"></div><br>Cargando…</div>
+    </div>
   </section>
 
   <!-- ═══ ASISTENTES ═══ -->
@@ -584,6 +596,52 @@
   </div>
 </div>
 
+<!-- ═══ MODAL CONTACTO ═══ -->
+<div class="modal-overlay" id="modal-contacto">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nuevo Contacto</span>
+      <button class="modal-close" onclick="closeModal('modal-contacto')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input id="ct-nombre" type="text" placeholder="Nombre">
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input id="ct-apellido" type="text" placeholder="Apellido">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="ct-mail" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input id="ct-tel" type="tel" placeholder="+54 9 358…">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Instagram</label>
+          <input id="ct-ig" type="text" placeholder="@usuario">
+        </div>
+        <div class="form-group">
+          <label>DNI</label>
+          <input id="ct-dni" type="text" placeholder="12345678">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-contacto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitContacto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOASTS -->
 <div class="toast-container" id="toasts"></div>
 
@@ -646,6 +704,8 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
     document.getElementById(`sec-${tab}`).classList.add('active');
     if (tab === 'invitaciones') {
       loadInvTab();
+    } else if (tab === 'contactos') {
+      loadContactos();
     } else if (tab === 'tipos' || tab === 'asistentes') {
       try {
         const d = await apiFetch('GET', '/api/admin/eventos');
@@ -1298,6 +1358,101 @@ async function deleteEntrada(id) {
     updateStats();
     renderTable();
   } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CONTACTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let contactos = [];
+
+async function loadContactos() {
+  loading('contactos-list');
+  try {
+    const d = await apiFetch('GET', '/api/admin/contactos');
+    contactos = Array.isArray(d) ? d : (d.data || []);
+    renderContactos();
+  } catch(e) {
+    setHtml('contactos-list', `<div class="empty">Error: ${esc(e.message)}</div>`);
+  }
+}
+
+function renderContactos() {
+  const el = document.getElementById('contactos-list');
+  if (!contactos.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-title">Sin contactos todavía</div>Guardá personas frecuentes para invitarlas más rápido</div>';
+    return;
+  }
+  el.innerHTML = contactos.map(c => `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${esc(c.nombre)} ${esc(c.apellido)}</div>
+          <div class="card-meta">
+            ${c.mail ? esc(c.mail) : ''}
+            ${c.telefono ? ` · ${esc(c.telefono)}` : ''}
+            ${c.usuario_ig ? ` · @${esc(c.usuario_ig)}` : ''}
+            ${c.dni ? ` · DNI ${esc(c.dni)}` : ''}
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-sm btn-accent" onclick="invitarContacto(${c.id})">Invitar</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteContacto(${c.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openContactoModal() {
+  ['ct-nombre','ct-apellido','ct-mail','ct-tel','ct-ig','ct-dni']
+    .forEach(id => document.getElementById(id).value = '');
+  openModal('modal-contacto');
+}
+
+async function submitContacto() {
+  const nombre   = document.getElementById('ct-nombre').value.trim();
+  const apellido = document.getElementById('ct-apellido').value.trim();
+  if (!nombre || !apellido) { toast('Nombre y apellido son requeridos', 'error'); return; }
+  try {
+    await apiFetch('POST', '/api/admin/contactos', {
+      nombre, apellido,
+      mail:       document.getElementById('ct-mail').value.trim(),
+      telefono:   document.getElementById('ct-tel').value.trim(),
+      usuario_ig: document.getElementById('ct-ig').value.trim(),
+      dni:        document.getElementById('ct-dni').value.trim(),
+    });
+    toast('Contacto guardado', 'success');
+    closeModal('modal-contacto');
+    await loadContactos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+async function deleteContacto(id) {
+  if (!confirm('¿Eliminar este contacto?')) return;
+  try {
+    await apiFetch('DELETE', `/api/admin/contactos/${id}`);
+    toast('Contacto eliminado', 'success');
+    contactos = contactos.filter(c => c.id !== id);
+    renderContactos();
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+}
+
+function invitarContacto(id) {
+  const c = contactos.find(x => x.id === id);
+  if (!c) return;
+  document.querySelector('[data-tab="invitaciones"]').click();
+  setTimeout(() => {
+    document.getElementById('inv-nombre-completo').value = `${c.nombre} ${c.apellido}`;
+    document.getElementById('inv-email').value  = c.mail || '';
+    document.getElementById('inv-tel').value    = c.telefono || '';
+    document.getElementById('inv-ig').value     = c.usuario_ig || '';
+    document.getElementById('inv-dni').value    = c.dni || '';
+    toast(`Datos de ${c.nombre} cargados`, 'success');
+  }, 300);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────

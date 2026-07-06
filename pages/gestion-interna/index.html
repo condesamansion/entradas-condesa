@@ -253,6 +253,8 @@
     }
     .checkbox-row label { margin: 0; text-transform: none; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--text); }
     .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+    .modal-overlay * { pointer-events: auto; }
+    .modal-body input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; }
 
     /* ── EVENTO SELECTOR BAR ── */
     .evento-bar {
@@ -761,6 +763,39 @@
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-promo')">Cancelar</button>
       <button class="btn btn-primary" onclick="submitPromo()">Guardar promo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL EDITAR PROMO ═══ -->
+<div class="modal-overlay" id="modal-promo-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar Promo</span>
+      <button class="modal-close" onclick="closeModal('modal-promo-edit')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="promo-edit-id">
+      <div class="form-group">
+        <label>Nombre (opcional)</label>
+        <input id="promo-edit-nombre" type="text">
+      </div>
+      <div class="form-group">
+        <label>Descripción *</label>
+        <textarea id="promo-edit-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Imagen (opcional — dejá vacío para mantener la actual)</label>
+        <input id="promo-edit-file" type="file" accept="image/*">
+      </div>
+      <div class="checkbox-row" style="margin-top:8px">
+        <input id="promo-edit-whatsapp" type="checkbox">
+        <label for="promo-edit-whatsapp">Botón de WhatsApp</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-promo-edit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitEditPromo()">Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -1775,9 +1810,12 @@ async function loadPromos() {
               <button class="btn btn-sm" onclick="moverPromo(${p.id}, ${p.orden || i+1}, 'up')" ${i === 0 ? 'disabled' : ''}>↑</button>
               <button class="btn btn-sm" onclick="moverPromo(${p.id}, ${p.orden || i+1}, 'down')" ${i === promos.length-1 ? 'disabled' : ''}>↓</button>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="deletePromo(${p.id})">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="editarPromo(${p.id})">Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="deletePromo(${p.id})">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>`).join(''));
@@ -1844,6 +1882,43 @@ async function deletePromo(id) {
     toast('Promo eliminada', 'success');
     loadPromos();
   } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+}
+
+function editarPromo(id) {
+  const p = (window._promos || []).find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('promo-edit-id').value         = p.id;
+  document.getElementById('promo-edit-nombre').value     = p.nombre || '';
+  document.getElementById('promo-edit-desc').value       = p.descripcion || '';
+  document.getElementById('promo-edit-whatsapp').checked = p.whatsapp == 1;
+  document.getElementById('promo-edit-file').value       = '';
+  openModal('modal-promo-edit');
+}
+
+async function submitEditPromo() {
+  const id   = document.getElementById('promo-edit-id').value;
+  const desc = document.getElementById('promo-edit-desc').value.trim();
+  if (!desc) { toast('La descripción es requerida', 'error'); return; }
+
+  const fd = new FormData();
+  fd.append('nombre',      document.getElementById('promo-edit-nombre').value.trim());
+  fd.append('descripcion', desc);
+  fd.append('whatsapp',    document.getElementById('promo-edit-whatsapp').checked ? '1' : '0');
+  const file = document.getElementById('promo-edit-file').files[0];
+  if (file) fd.append('imagen', file);
+
+  try {
+    const res = await fetch(`${API}/api/admin/promos/${id}`, { method: 'PUT', body: fd });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || `Error ${res.status}`);
+    }
+    toast('Promo actualizada', 'success');
+    closeModal('modal-promo-edit');
+    loadPromos();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
 }
 
 async function guardarWhatsapp() {

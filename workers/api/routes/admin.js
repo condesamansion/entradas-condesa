@@ -406,13 +406,43 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ ok: true }, 201);
   }
 
-  // PUT /api/admin/promos/:id (actualizar orden)
+  // PUT /api/admin/promos/:id (edición completa o solo orden)
   const promoMatch = pathname.match(/^\/api\/admin\/promos\/(\d+)$/);
   if (promoMatch && method === 'PUT') {
     const id = parseInt(promoMatch[1]);
-    const body = await parseBody(request);
-    if (body.orden !== undefined) {
-      await env.DB.prepare('UPDATE promos SET orden = ? WHERE id = ?').bind(body.orden, id).run();
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData  = await request.formData();
+      const nombre     = formData.get('nombre') || null;
+      const descripcion = formData.get('descripcion');
+      const whatsapp   = formData.get('whatsapp') === '1' ? 1 : 0;
+
+      let imagen_url = null;
+      const file = formData.get('imagen');
+      if (file && file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const key   = `promos/promo-${Date.now()}.${file.type.split('/')[1] || 'jpg'}`;
+        await env.BUCKET.put(key, bytes, { httpMetadata: { contentType: file.type } });
+        imagen_url = `https://assets.condesamansion.com.ar/${key}`;
+      }
+
+      if (!descripcion) return err('Descripción es requerida');
+
+      if (imagen_url) {
+        await env.DB.prepare(
+          'UPDATE promos SET nombre=?, descripcion=?, whatsapp=?, imagen_url=? WHERE id=?'
+        ).bind(nombre, descripcion, whatsapp, imagen_url, id).run();
+      } else {
+        await env.DB.prepare(
+          'UPDATE promos SET nombre=?, descripcion=?, whatsapp=? WHERE id=?'
+        ).bind(nombre, descripcion, whatsapp, id).run();
+      }
+    } else {
+      const body = await parseBody(request);
+      if (body.orden !== undefined) {
+        await env.DB.prepare('UPDATE promos SET orden=? WHERE id=?').bind(body.orden, id).run();
+      }
     }
     return ok({ ok: true });
   }

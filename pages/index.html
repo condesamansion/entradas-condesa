@@ -35,16 +35,15 @@
       z-index: 100;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       padding: 14px 20px;
       background: linear-gradient(to bottom, rgba(30,30,30,.95), transparent);
       transition: background .3s;
     }
     .nav.solid { background: rgba(30,30,30,.97); border-bottom: 1px solid var(--border); }
-    .nav-logo { height: 28px; display: block; }
     .nav-links {
       display: flex;
-      gap: 24px;
+      gap: 28px;
     }
     .nav-links a {
       color: rgba(241,241,241,.7);
@@ -56,10 +55,6 @@
       transition: color .15s;
     }
     .nav-links a:hover { color: var(--text); }
-    @media (max-width: 480px) {
-      .nav-links { gap: 14px; }
-      .nav-links a { font-size: 9px; letter-spacing: 2px; }
-    }
 
     /* ── HERO ── */
     .hero {
@@ -549,7 +544,6 @@
 
 <!-- NAV -->
 <nav class="nav" id="main-nav">
-  <img class="nav-logo" src="./logohorizontal.svg" alt="Condesa">
   <div class="nav-links">
     <a href="#fechas">Fechas</a>
     <a href="#fotos">Fotos</a>

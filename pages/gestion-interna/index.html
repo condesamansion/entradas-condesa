@@ -368,17 +368,17 @@
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-box">
-    <img class="login-logo" src="/logo.svg" alt="Condesa" onerror="this.style.display='none'">
+    <img src="../../logo.svg" alt="Condesa" style="width:120px;opacity:.9;margin-bottom:4px" onerror="this.style.display='none'">
     <div class="login-label">Gestión Interna</div>
     <div class="form-group">
       <label>Usuario</label>
       <select id="login-user">
         <option value="">— seleccioná —</option>
-        <option value="carla">carla</option>
-        <option value="gonza">gonza</option>
-        <option value="fede">fede</option>
-        <option value="mauri">mauri</option>
-        <option value="santi">santi</option>
+        <option value="Carla">Carla</option>
+        <option value="Gonza">Gonza</option>
+        <option value="Fede">Fede</option>
+        <option value="Mauri">Mauri</option>
+        <option value="Santi">Santi</option>
       </select>
     </div>
     <div class="form-group">
@@ -1093,10 +1093,10 @@ function renderInvitadoFields() {
 }
 
 async function submitInvitacion() {
-  const cant    = parseInt(document.getElementById('inv-cant').value) || 0;
-  const detalle = Array.from({length: cant}, (_,i) =>
+  const cant           = parseInt(document.getElementById('inv-cant').value) || 0;
+  const detalleArr     = Array.from({length: cant}, (_,i) =>
     document.getElementById(`inv-inv-${i}`)?.value?.trim() || ''
-  ).filter(Boolean).join('\n');
+  ).filter(Boolean);
 
   const nombreCompleto = document.getElementById('inv-nombre-completo').value.trim();
   const espacio        = nombreCompleto.indexOf(' ');
@@ -1104,18 +1104,18 @@ async function submitInvitacion() {
   const apellido       = espacio >= 0 ? nombreCompleto.slice(espacio + 1).trim() : '-';
 
   const body = {
-    evento_id:          S._invActivo?.id,
-    mail:               document.getElementById('inv-email').value.trim() || undefined,
+    evento_id:        S._invActivo?.id,
+    mail:             document.getElementById('inv-email').value.trim() || undefined,
     nombre,
     apellido,
-    telefono:           document.getElementById('inv-tel').value.trim() || undefined,
-    instagram:          document.getElementById('inv-ig').value.trim() || undefined,
-    dni:                document.getElementById('inv-dni').value.trim(),
-    tipo_entrada_id:    document.getElementById('inv-tipo').value,
-    cantidad_invitados: cant,
-    detalle_invitados:  detalle,
-    mensaje:            document.getElementById('inv-msg').value.trim() || undefined,
-    creado_por:         usuarioActual,
+    telefono:         document.getElementById('inv-tel').value.trim() || undefined,
+    usuario_ig:       document.getElementById('inv-ig').value.trim() || undefined,
+    dni:              document.getElementById('inv-dni').value.trim(),
+    tipo_entrada_id:  document.getElementById('inv-tipo').value,
+    invitados_count:  cant,
+    invitados_detalle: detalleArr.length ? JSON.stringify(detalleArr) : undefined,
+    mensaje_especial: document.getElementById('inv-msg').value.trim() || undefined,
+    creado_por:       usuarioActual,
   };
 
   if (!nombreCompleto || !body.dni || !body.tipo_entrada_id || !body.evento_id) {

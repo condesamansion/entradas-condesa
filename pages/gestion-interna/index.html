@@ -252,6 +252,7 @@
       margin-top: 22px;
     }
     .checkbox-row label { margin: 0; text-transform: none; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--text); }
+    .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
 
     /* ── EVENTO SELECTOR BAR ── */
     .evento-bar {
@@ -1814,27 +1815,26 @@ async function submitPromo() {
   const desc = document.getElementById('promo-desc').value.trim();
   if (!desc) { toast('La descripción es requerida', 'error'); return; }
 
-  let imagen_url = null;
+  const fd = new FormData();
+  fd.append('nombre',      document.getElementById('promo-nombre').value.trim());
+  fd.append('descripcion', desc);
+  fd.append('whatsapp',    document.getElementById('promo-whatsapp').checked ? '1' : '0');
+
   const file = document.getElementById('promo-file').files[0];
-  if (file) {
-    const bytes = await file.arrayBuffer();
-    const uint8 = new Uint8Array(bytes);
-    let bin = '';
-    for (let i = 0; i < uint8.length; i++) bin += String.fromCharCode(uint8[i]);
-    imagen_url = `data:${file.type};base64,${btoa(bin)}`;
-  }
+  if (file) fd.append('imagen', file);
 
   try {
-    await apiFetch('POST', '/api/admin/promos', {
-      nombre:      document.getElementById('promo-nombre').value.trim() || undefined,
-      descripcion: desc,
-      imagen_url,
-      whatsapp:    document.getElementById('promo-whatsapp').checked ? 1 : 0,
-    });
+    const res = await fetch(`${API}/api/admin/promos`, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || `Error ${res.status}`);
+    }
     toast('Promo agregada', 'success');
     closeModal('modal-promo');
     loadPromos();
-  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
 }
 
 async function deletePromo(id) {

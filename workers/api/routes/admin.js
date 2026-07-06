@@ -370,19 +370,39 @@ export async function handleAdmin(request, env, pathname) {
 
   // POST /api/admin/promos
   if (pathname === '/api/admin/promos' && method === 'POST') {
-    const body = await parseBody(request);
-    if (!body.descripcion) return err('Descripción es requerida');
+    let nombre, descripcion, whatsapp, imagen_url = null;
+
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      nombre      = formData.get('nombre') || null;
+      descripcion = formData.get('descripcion');
+      whatsapp    = formData.get('whatsapp') === '1' ? 1 : 0;
+      const file  = formData.get('imagen');
+      if (file && file.size > 0) {
+        const bytes = await file.arrayBuffer();
+        const key   = `promos/promo-${Date.now()}.${file.type.split('/')[1] || 'jpg'}`;
+        await env.BUCKET.put(key, bytes, { httpMetadata: { contentType: file.type } });
+        imagen_url = `https://assets.condesamansion.com.ar/${key}`;
+      }
+    } else {
+      const body  = await parseBody(request);
+      nombre      = body.nombre || null;
+      descripcion = body.descripcion;
+      whatsapp    = body.whatsapp ? 1 : 0;
+      imagen_url  = body.imagen_url || null;
+    }
+
+    if (!descripcion) return err('Descripción es requerida');
+
     const maxOrden = await env.DB.prepare('SELECT MAX(orden) as max FROM promos').first();
-    const orden = (maxOrden?.max ?? 0) + 1;
+    const orden    = (maxOrden?.max ?? 0) + 1;
+
     await env.DB.prepare(
       'INSERT INTO promos (nombre, descripcion, imagen_url, activa, whatsapp, orden) VALUES (?, ?, ?, 1, ?, ?)'
-    ).bind(
-      body.nombre || null,
-      body.descripcion,
-      body.imagen_url || null,
-      body.whatsapp ? 1 : 0,
-      orden
-    ).run();
+    ).bind(nombre, descripcion, imagen_url, whatsapp, orden).run();
+
     return ok({ ok: true }, 201);
   }
 

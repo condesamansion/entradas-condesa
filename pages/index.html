@@ -15,95 +15,124 @@
       --text:   #f1f1f1;
       --muted:  #888;
       --border: #4a4a4a;
-      --error:  #e05252;
+      --surface:#2b2b2b;
     }
 
-    html, body {
+    html { scroll-behavior: smooth; }
+
+    body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Montserrat', Arial, sans-serif;
-      font-weight: 400;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Flyer ─────────────────────────────────────────────── */
-    .flyer {
-      width: 100%;
-      height: 62vh;
+    /* ── NAV ── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: linear-gradient(to bottom, rgba(30,30,30,.95), transparent);
+      transition: background .3s;
+    }
+    .nav.solid { background: rgba(30,30,30,.97); border-bottom: 1px solid var(--border); }
+    .nav-logo { height: 28px; display: block; }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+    .nav-links a {
+      color: rgba(241,241,241,.7);
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    @media (max-width: 480px) {
+      .nav-links { gap: 14px; }
+      .nav-links a { font-size: 9px; letter-spacing: 2px; }
+    }
+
+    /* ── HERO ── */
+    .hero {
       position: relative;
-      background: #1e1e1e;
-      overflow: hidden;
-    }
-
-    @media (min-width: 600px) { .flyer { height: 72vh; } }
-
-    .flyer img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top center;
-      display: block;
+      height: 100svh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a1a;
     }
-
-    .flyer-gradient {
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .hero-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(
         to bottom,
-        transparent 30%,
-        rgba(51,51,51,0.6) 70%,
+        rgba(30,30,30,.35) 0%,
+        rgba(30,30,30,.2) 40%,
+        rgba(51,51,51,.7) 80%,
         #333333 100%
       );
     }
-
-    .flyer-placeholder {
-      width: 100%;
-      height: 28vh;
-      background: #222;
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 0 24px;
+      text-align: center;
     }
-
-    /* ── Layout ────────────────────────────────────────────── */
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 0 20px;
+    .hero-logo { width: min(220px, 55vw); }
+    .hero-slogan { width: min(260px, 65vw); opacity: .75; }
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: .4;
+      animation: bob 2s ease-in-out infinite;
     }
-
-    /* ── Event info ─────────────────────────────────────────── */
-    .event-info {
-      padding: 28px 0 28px;
-    }
-
-    .event-date {
-      font-size: 11px;
-      font-weight: 600;
+    .hero-scroll span {
+      font-size: 9px;
+      font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
     }
 
-    .event-name {
-      font-size: clamp(30px, 7vw, 52px);
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -1px;
-      margin-bottom: 16px;
-    }
-
-    .event-desc {
-      font-size: 15px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    /* ── Divider ────────────────────────────────────────────── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 12px 0 28px;
+    /* ── SECTIONS ── */
+    section {
+      padding: 64px 20px;
+      max-width: 640px;
+      margin: 0 auto;
     }
 
     .section-label {
@@ -112,601 +141,858 @@
       letter-spacing: 4px;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 20px;
-    }
-
-    /* ── Ticket cards ───────────────────────────────────────── */
-    .tickets {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
       margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── EVENTOS ── */
+    .evento-card {
       border: 1px solid var(--border);
-    }
-
-    .ticket-card {
-      padding: 22px 20px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
-
-    .ticket-card:last-child { border-bottom: none; }
-
-    .ticket-card.selected { background: rgba(241,241,241,0.04); }
-
-    .ticket-header {
+      padding: 24px 20px;
+      margin-bottom: 1px;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: center;
       gap: 16px;
-      margin-bottom: 8px;
+      transition: background .15s;
+      text-decoration: none;
+      color: inherit;
     }
-
-    .ticket-name {
-      font-size: 17px;
+    .evento-card:hover { background: rgba(241,241,241,.03); }
+    .evento-card-info {}
+    .evento-fecha {
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: -0.3px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
-
-    .ticket-price {
-      font-size: 17px;
+    .evento-nombre {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      line-height: 1.1;
+    }
+    .evento-badge {
+      font-size: 9px;
       font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      color: var(--muted);
       white-space: nowrap;
       flex-shrink: 0;
     }
-
-    .ticket-beneficios {
-      font-size: 13px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 10px;
+    .evento-badge.activo {
+      border-color: var(--text);
+      color: var(--text);
     }
 
-    .ticket-meta {
-      font-size: 10px;
-      font-weight: 600;
+    /* ── FOTOS ── */
+    .albums-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    @media (min-width: 480px) {
+      .albums-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    .album-card {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--surface);
+      display: block;
+      text-decoration: none;
+    }
+    .album-thumb {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .4s ease;
+    }
+    .album-card:hover .album-thumb { transform: scale(1.05); }
+    .album-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 60%);
+      display: flex;
+      align-items: flex-end;
+      padding: 12px;
+    }
+    .album-nombre {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .album-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2a2a2a;
+    }
+    .album-placeholder svg { opacity: .2; }
+
+    /* ── CARTA ── */
+    .carta-loading {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .carta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .carta-table thead th {
+      font-size: 9px;
+      font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 16px;
+      padding: 8px 0;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+    .carta-table thead th:first-child { text-align: left; }
+    .carta-table tbody tr {
+      border-bottom: 1px solid rgba(74,74,74,.4);
+      transition: background .1s;
+    }
+    .carta-table tbody tr:hover { background: rgba(241,241,241,.02); }
+    .carta-table tbody td {
+      padding: 12px 0;
+      text-align: right;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .carta-table tbody td:first-child {
+      text-align: left;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .carta-table tbody td.precio-destacado {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .carta-empty-cell { color: transparent; user-select: none; }
+
+    /* ── PROMOS ── */
+    .promo-card {
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 2px;
+    }
+    .promo-img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .promo-body {
+      padding: 20px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: rgba(241,241,241,.85);
+    }
+    .no-promos {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px dashed var(--border);
     }
 
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .footer-logo { width: 80px; opacity: .15; }
+    .footer-slogan { width: 180px; opacity: .2; }
+    .footer-copy {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 1px;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(241,241,241,.15);
+      border-top-color: rgba(241,241,241,.6);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── PÁGINA EVENTO ── */
+    .evento-page { display: none; }
+    .evento-page.active { display: block; }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 28px;
+      transition: color .15s;
+    }
+    .back-btn:hover { color: var(--text); }
+    .evento-flyer {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+    }
+    .evento-detail-fecha {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .evento-detail-nombre {
+      font-size: clamp(28px, 8vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .evento-detail-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+    .tipos-wrap { margin-bottom: 40px; }
+    .tipo-card {
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin-bottom: 1px;
+    }
+    .tipo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .tipo-nombre { font-size: 16px; font-weight: 700; }
+    .tipo-precio { font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .tipo-beneficios {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
     .btn-comprar {
+      width: 100%;
       background: var(--text);
       color: var(--bg);
       border: none;
-      width: 100%;
       padding: 13px;
       font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: opacity .15s;
+    }
+    .btn-comprar:hover { opacity: .85; }
+    .btn-proximamente {
+      width: 100%;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 13px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: default;
     }
 
-    .btn-comprar:hover { opacity: 0.88; }
-
-    /* ── Purchase form ──────────────────────────────────────── */
-    .form-section {
+    /* ── FORM COMPRA ── */
+    .form-compra {
       border: 1px solid var(--text);
-      padding: 28px 24px 24px;
-      margin-bottom: 48px;
+      padding: 24px 20px;
+      margin-top: 12px;
     }
-
     .form-title {
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 4px;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
-
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
-
-    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
-
+    @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 12px;
+      gap: 5px;
+      margin-bottom: 10px;
     }
-
     .form-row .form-group { margin-bottom: 0; }
-
     .form-group label {
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 9px;
+      font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--muted);
     }
-
     .form-group input {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text);
       font-family: 'Montserrat', Arial, sans-serif;
       font-size: 14px;
-      font-weight: 400;
-      padding: 11px 13px;
+      padding: 10px 12px;
       outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
+      transition: border-color .15s;
       -webkit-appearance: none;
     }
-
     .form-group input:focus { border-color: var(--text); }
-
-    .tipo-display {
-      border: 1px solid var(--border);
-      padding: 11px 13px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--muted);
-      background: transparent;
-    }
-
     .form-error {
-      color: var(--error);
+      color: #e05252;
       font-size: 12px;
-      font-weight: 500;
-      line-height: 1.5;
       margin-top: 4px;
       display: none;
     }
-
     .btn-pagar {
       width: 100%;
       background: var(--text);
       color: var(--bg);
       border: none;
-      padding: 16px;
+      padding: 15px;
       font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 3px;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 20px;
-      transition: opacity 0.15s;
+      margin-top: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
+      transition: opacity .15s;
     }
-
-    .btn-pagar:hover:not(:disabled) { opacity: 0.88; }
-    .btn-pagar:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .btn-cancelar {
+    .btn-pagar:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-cancelar-form {
       width: 100%;
       background: transparent;
       border: none;
       color: var(--muted);
-      padding: 12px;
+      padding: 10px;
       font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
-      margin-top: 10px;
-      transition: color 0.15s;
-    }
-
-    .btn-cancelar:hover { color: var(--text); }
-
-    /* ── Spinner ────────────────────────────────────────────── */
-    .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(51,51,51,0.25);
-      border-top-color: #333;
-      border-radius: 50%;
-      animation: spin 0.65s linear infinite;
-      flex-shrink: 0;
-    }
-
-    .spinner-light {
-      border-color: rgba(241,241,241,0.2);
-      border-top-color: var(--text);
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Loading screen ─────────────────────────────────────── */
-    .loading-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ── Próximamente ───────────────────────────────────────── */
-    .pronto {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 36px;
-      padding: 40px 24px;
-      text-align: center;
-    }
-
-    .pronto-logo { max-width: 160px; width: 55%; }
-
-    .pronto-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .pronto-slogan { max-width: 150px; width: 50%; opacity: 0.35; }
-
-    /* ── Result pages ───────────────────────────────────────── */
-    .result-page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px 24px;
-      text-align: center;
-      gap: 20px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .result-logo { max-width: 100px; margin-bottom: 12px; }
-
-    .result-mark {
-      font-size: 36px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1;
-    }
-
-    .result-title {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      line-height: 1.2;
-    }
-
-    .result-body {
-      font-size: 15px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.8;
-      max-width: 340px;
-    }
-
-    .btn-volver {
-      display: inline-block;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      background: transparent;
-      padding: 12px 28px;
-      font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      text-decoration: none;
       margin-top: 8px;
-      transition: border-color 0.15s, color 0.15s;
-      cursor: pointer;
+      transition: color .15s;
     }
-
-    .btn-volver:hover { border-color: var(--text); color: var(--text); }
-
-    /* ── Footer ─────────────────────────────────────────────── */
-    .footer {
-      border-top: 1px solid var(--border);
-      padding: 36px 0;
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    .footer img { max-width: 80px; opacity: 0.2; }
+    .btn-cancelar-form:hover { color: var(--text); }
   </style>
 </head>
 <body>
-<div id="app"></div>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav">
+  <img class="nav-logo" src="./logohorizontal.svg" alt="Condesa">
+  <div class="nav-links">
+    <a href="#fechas">Fechas</a>
+    <a href="#fotos">Fotos</a>
+    <a href="#carta">Carta</a>
+    <a href="#promos">Promos</a>
+  </div>
+</nav>
+
+<!-- APP -->
+<div id="app">
+  <!-- LANDING -->
+  <div id="view-landing">
+
+    <!-- HERO -->
+    <div class="hero" id="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <img class="hero-logo" src="./logo.svg" alt="Condesa">
+        <img class="hero-slogan" src="./slogan.svg" alt="#LaMansionEstaDeFiesta">
+      </div>
+      <div class="hero-scroll">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <span>Ver más</span>
+      </div>
+    </div>
+
+    <!-- FECHAS -->
+    <section id="fechas">
+      <div class="section-label">Próximas fechas</div>
+      <div id="eventos-wrap">
+        <div style="text-align:center;padding:32px"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- FOTOS -->
+    <section id="fotos" style="padding-top:0">
+      <div class="section-label">Fotos</div>
+      <div id="albums-wrap">
+        <div style="text-align:center;padding:32px"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- CARTA -->
+    <section id="carta" style="padding-top:0">
+      <div class="section-label">Carta de bebidas</div>
+      <div id="carta-wrap">
+        <div class="carta-loading"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- PROMOS -->
+    <section id="promos" style="padding-top:0">
+      <div class="section-label">Promos</div>
+      <div id="promos-wrap">
+        <div style="text-align:center;padding:32px"><div class="spinner"></div></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <img class="footer-logo" src="./logo.svg" alt="Condesa">
+      <img class="footer-slogan" src="./slogan.svg" alt="#LaMansionEstaDeFiesta">
+      <div class="footer-copy">© Condesa · Río Cuarto</div>
+    </footer>
+
+  </div>
+
+  <!-- DETALLE EVENTO -->
+  <div id="view-evento" style="display:none;padding-top:60px">
+    <div style="max-width:640px;margin:0 auto;padding:24px 20px 60px">
+      <button class="back-btn" onclick="volverLanding()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7-7"/></svg>
+        Volver
+      </button>
+      <div id="evento-detalle"></div>
+    </div>
+  </div>
+
+</div>
+
 <script>
-  const API = 'https://entradas-qr-condesa.condesa.workers.dev';
-  const S   = { evento: null, tipos: [], tipoSel: null };
+const API      = 'https://entradas-qr-condesa.condesa.workers.dev';
+const CARTA_URL = 'https://script.google.com/macros/s/AKfycbzGQLiLp14T9RKC2b4HxRFfzA81H5p1sA40Ew68yUzzezOUuvDcw4m_j4t42lQwsSTI/exec?action=getProductos';
 
-  // ── Routing ───────────────────────────────────────────────
-  const p = window.location.pathname;
-  if      (p.includes('/pago/exito'))     renderResult('exito');
-  else if (p.includes('/pago/error'))     renderResult('error');
-  else if (p.includes('/pago/pendiente')) renderResult('pendiente');
-  else { renderLoading(); init(); }
+const S = { eventos: [], tipoSel: null, eventoSel: null };
 
-  // ── Init ──────────────────────────────────────────────────
-  async function init() {
-    try {
-      const raw  = await apiFetch('/api/evento-activo');
-      const data = raw.data || raw;
-      S.evento   = data.evento || null;
-      S.tipos    = (data.tipos || []).filter(t => t.visible_publico != 0);
-      if (!S.evento) { renderProximamente(); return; }
-      renderEvento();
-    } catch(e) {
-      renderProximamente();
+// ── Nav scroll ────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('solid', window.scrollY > 60);
+}, { passive: true });
+
+// ── Init ──────────────────────────────────────────────────────
+async function init() {
+  try {
+    const raw  = await fetch(API + '/api/landing');
+    const data = await raw.json();
+    const d    = data.data || data;
+
+    S.eventos = d.eventos || [];
+
+    // Hero
+    if (d.config?.hero_url) {
+      const hero = document.getElementById('hero');
+      const img  = document.createElement('img');
+      img.className = 'hero-bg';
+      img.src = d.config.hero_url;
+      hero.insertBefore(img, hero.firstChild);
     }
+
+    renderEventos(d.eventos || []);
+    renderAlbums(d.albums || []);
+    renderPromos(d.promos || []);
+    loadCarta();
+  } catch(e) {
+    renderEventos([]);
+    renderAlbums([]);
+    renderPromos([]);
+    loadCarta();
   }
+}
 
-  async function apiFetch(path, body) {
-    const opts = body
-      ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-      : { method: 'GET' };
-    const res  = await fetch(API + path, opts);
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
-    return data;
+// ── Eventos ───────────────────────────────────────────────────
+function renderEventos(eventos) {
+  const el = document.getElementById('eventos-wrap');
+  if (!eventos.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0">Próximamente…</div>';
+    return;
   }
-
-  // ── Loading ───────────────────────────────────────────────
-  function renderLoading() {
-    document.getElementById('app').innerHTML =
-      `<div class="loading-screen"><div class="spinner spinner-light" style="width:20px;height:20px;border-width:2px"></div></div>`;
-  }
-
-  // ── Próximamente ──────────────────────────────────────────
-  function renderProximamente() {
-    document.title = 'Condesa';
-    document.getElementById('app').innerHTML = `
-      <div class="pronto">
-        <img class="pronto-logo" src="./logo.svg" alt="Condesa">
-        <div class="pronto-label">Próximamente</div>
-        <img class="pronto-slogan" src="./slogan.svg" alt="">
-      </div>`;
-  }
-
-  // ── Evento ────────────────────────────────────────────────
-  function renderEvento() {
-    const ev = S.evento;
-    document.title = `${ev.nombre} — Condesa`;
-
-    const fechaStr = fmtFecha(ev.fecha);
-    const horaStr  = ev.fecha ? ev.fecha.slice(11,16) : '';
-    const flyerUrl = ev.flyer_url || ev.flyer || '';
-
-    const flyerHtml = flyerUrl
-      ? `<div class="flyer">
-           <img src="${esc(flyerUrl)}" alt="${esc(ev.nombre)}" loading="eager">
-           <div class="flyer-gradient"></div>
-         </div>`
-      : `<div class="flyer-placeholder"></div>`;
-
-    const ticketsHtml = S.tipos.length
-      ? S.tipos.map(ticketCardHtml).join('')
-      : `<div style="padding:24px 0;color:var(--muted);font-size:14px;font-weight:300">
-           Entradas disponibles próximamente.
-         </div>`;
-
-    document.getElementById('app').innerHTML = `
-      ${flyerHtml}
-      <div class="container">
-        <div class="event-info">
-          <div class="event-date">${fechaStr}${horaStr ? ' &middot; ' + horaStr + 'h' : ''}</div>
-          <h1 class="event-name">${esc(ev.nombre)}</h1>
-          ${ev.descripcion ? `<p class="event-desc">${esc(ev.descripcion)}</p>` : ''}
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="section-label">Entradas</div>
-        <div class="tickets" id="tickets-list">
-          ${ticketsHtml}
-        </div>
-
-        <div id="form-wrap"></div>
-
-        <footer class="footer">
-          <img src="./logo.svg" alt="Condesa">
-        </footer>
-      </div>`;
-  }
-
-  function ticketCardHtml(t) {
-    const edad = t.restriccion_edad || t.edad_minima;
+  el.innerHTML = eventos.map(ev => {
+    const activo = ev.activo == 1;
+    const fecha  = fmtFechaCorta(ev.fecha);
     return `
-      <div class="ticket-card" id="ticket-${t.id}">
-        <div class="ticket-header">
-          <span class="ticket-name">${esc(t.nombre)}</span>
-          <span class="ticket-price">${fmtPrecio(t.precio)}</span>
+      <div class="evento-card" onclick="verEvento(${ev.id})" style="cursor:pointer">
+        <div class="evento-card-info">
+          <div class="evento-fecha">${fecha}</div>
+          <div class="evento-nombre">${esc(ev.nombre)}</div>
         </div>
-        ${t.beneficios ? `<div class="ticket-beneficios">${esc(t.beneficios)}</div>` : ''}
-        ${edad ? `<div class="ticket-meta">+${edad} años</div>` : ''}
-        <button class="btn-comprar" onclick="seleccionarTipo(${t.id})">COMPRAR</button>
+        <div class="evento-badge ${activo ? 'activo' : ''}">
+          ${activo ? 'Entradas' : 'Próximo'}
+        </div>
       </div>`;
+  }).join('');
+}
+
+async function verEvento(id) {
+  const ev = S.eventos.find(e => e.id === id);
+  if (!ev) return;
+  S.eventoSel = ev;
+  S.tipoSel   = null;
+
+  document.getElementById('view-landing').style.display = 'none';
+  document.getElementById('view-evento').style.display  = 'block';
+  window.scrollTo(0, 0);
+
+  const wrap = document.getElementById('evento-detalle');
+  wrap.innerHTML = '<div style="text-align:center;padding:60px"><div class="spinner"></div></div>';
+
+  try {
+    const raw   = await fetch(`${API}/api/admin/tipos-entrada?evento_id=${id}`);
+    const data  = await raw.json();
+    const tipos = extraerArray(data, 'tipos').filter(t => t.visible_publico != 0 && t.precio > 0);
+    renderEventoDetalle(ev, tipos);
+  } catch(e) {
+    renderEventoDetalle(ev, []);
   }
+}
 
-  // ── Formulario ────────────────────────────────────────────
-  function seleccionarTipo(tipoId) {
-    S.tipoSel = S.tipos.find(t => t.id === tipoId);
-    if (!S.tipoSel) return;
-    document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById(`ticket-${tipoId}`)?.classList.add('selected');
-    renderForm();
-    setTimeout(() => document.getElementById('form-wrap')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+function renderEventoDetalle(ev, tipos) {
+  const activo   = ev.activo == 1;
+  const fecha    = fmtFechaLarga(ev.fecha);
+  const hora     = ev.fecha ? ev.fecha.slice(11,16) : '';
+  const flyerHtml = ev.flyer_url
+    ? `<img class="evento-flyer" src="${esc(ev.flyer_url)}" alt="${esc(ev.nombre)}">`
+    : '';
+
+  const tiposHtml = tipos.length
+    ? tipos.map(t => `
+        <div class="tipo-card" id="tipo-${t.id}">
+          <div class="tipo-header">
+            <span class="tipo-nombre">${esc(t.nombre)}</span>
+            <span class="tipo-precio">${fmtPrecio(t.precio)}</span>
+          </div>
+          ${t.beneficios ? `<div class="tipo-beneficios">${esc(t.beneficios)}</div>` : ''}
+          ${activo
+            ? `<button class="btn-comprar" onclick="seleccionarTipo(${t.id})">COMPRAR ENTRADA</button>`
+            : `<button class="btn-proximamente" disabled>PRÓXIMAMENTE</button>`
+          }
+        </div>
+        <div id="form-${t.id}"></div>
+      `).join('')
+    : `<div style="color:var(--muted);font-size:13px;padding:12px 0">Entradas disponibles próximamente.</div>`;
+
+  document.getElementById('evento-detalle').innerHTML = `
+    ${flyerHtml}
+    <div class="evento-detail-fecha">${fecha}${hora ? ' · ' + hora + 'h' : ''}</div>
+    <div class="evento-detail-nombre">${esc(ev.nombre)}</div>
+    ${ev.descripcion ? `<div class="evento-detail-desc">${esc(ev.descripcion)}</div>` : ''}
+    <div class="tipos-wrap">${tiposHtml}</div>`;
+}
+
+function volverLanding() {
+  document.getElementById('view-evento').style.display  = 'none';
+  document.getElementById('view-landing').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function seleccionarTipo(tipoId) {
+  const tipos = document.querySelectorAll('.tipo-card');
+  tipos.forEach(c => c.style.borderColor = '');
+  document.getElementById(`tipo-${tipoId}`)?.style.setProperty('border-color', 'var(--text)');
+
+  // Cerrar otros forms
+  document.querySelectorAll('[id^="form-"]').forEach(f => f.innerHTML = '');
+
+  S.tipoSel = tipoId;
+  document.getElementById(`form-${tipoId}`).innerHTML = renderFormHtml(tipoId);
+  setTimeout(() => document.getElementById(`form-${tipoId}`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
+
+function renderFormHtml(tipoId) {
+  return `
+    <div class="form-compra">
+      <div class="form-title">Tus datos</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input id="f-nombre" type="text" autocomplete="given-name" placeholder="Nombre">
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input id="f-apellido" type="text" autocomplete="family-name" placeholder="Apellido">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input id="f-email" type="email" autocomplete="email" placeholder="correo@ejemplo.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input id="f-tel" type="tel" placeholder="+54 9 …">
+        </div>
+        <div class="form-group">
+          <label>Instagram</label>
+          <input id="f-ig" type="text" placeholder="@usuario">
+        </div>
+      </div>
+      <div class="form-error" id="form-error"></div>
+      <button class="btn-pagar" id="btn-pagar" onclick="submitCompra(${tipoId})">
+        CONFIRMAR Y PAGAR
+      </button>
+      <button type="button" class="btn-cancelar-form" onclick="cancelarForm(${tipoId})">Cancelar</button>
+    </div>`;
+}
+
+function cancelarForm(tipoId) {
+  document.getElementById(`form-${tipoId}`).innerHTML = '';
+  document.getElementById(`tipo-${tipoId}`)?.style.setProperty('border-color', '');
+  S.tipoSel = null;
+}
+
+async function submitCompra(tipoId) {
+  const nombre   = document.getElementById('f-nombre')?.value.trim();
+  const apellido = document.getElementById('f-apellido')?.value.trim();
+  const email    = document.getElementById('f-email')?.value.trim();
+  const tel      = document.getElementById('f-tel')?.value.trim();
+  const ig       = document.getElementById('f-ig')?.value.trim();
+  const errEl    = document.getElementById('form-error');
+
+  if (!nombre || !apellido || !email) {
+    errEl.textContent = 'Completá nombre, apellido y email.';
+    errEl.style.display = 'block';
+    return;
   }
-
-  function renderForm() {
-    const t   = S.tipoSel;
-    const wrap = document.getElementById('form-wrap');
-    wrap.innerHTML = `
-      <div class="form-section">
-        <div class="form-title">Tus datos</div>
-        <form id="compra-form" onsubmit="return false">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Nombre *</label>
-              <input id="f-nombre" type="text" autocomplete="given-name" placeholder="Nombre">
-            </div>
-            <div class="form-group">
-              <label>Apellido *</label>
-              <input id="f-apellido" type="text" autocomplete="family-name" placeholder="Apellido">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Email *</label>
-              <input id="f-email" type="email" autocomplete="email" placeholder="correo@ejemplo.com">
-            </div>
-            <div class="form-group">
-              <label>Teléfono</label>
-              <input id="f-tel" type="tel" autocomplete="tel" placeholder="+54 9 …">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Instagram</label>
-            <input id="f-ig" type="text" placeholder="@usuario">
-          </div>
-          <div class="form-group">
-            <label>Entrada</label>
-            <div class="tipo-display">${esc(t.nombre)} — ${fmtPrecio(t.precio)}</div>
-          </div>
-          <div class="form-error" id="form-error"></div>
-          <button class="btn-pagar" id="btn-pagar" onclick="submitCompra()">
-            CONFIRMAR Y PAGAR
-          </button>
-          <button type="button" class="btn-cancelar" onclick="cancelarForm()">CANCELAR</button>
-        </form>
-      </div>`;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'El email no parece válido.';
+    errEl.style.display = 'block';
+    return;
   }
+  errEl.style.display = 'none';
 
-  function cancelarForm() {
-    const wrap = document.getElementById('form-wrap');
-    wrap.innerHTML = '';
-    document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('selected'));
-    S.tipoSel = null;
-  }
+  const btn = document.getElementById('btn-pagar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(51,51,51,.2);border-top-color:#333"></div>Procesando…';
 
-  async function submitCompra() {
-    const nombre   = document.getElementById('f-nombre').value.trim();
-    const apellido = document.getElementById('f-apellido').value.trim();
-    const email    = document.getElementById('f-email').value.trim();
-    const tel      = document.getElementById('f-tel').value.trim();
-    const ig       = document.getElementById('f-ig').value.trim();
-    const errEl    = document.getElementById('form-error');
-
-    errEl.style.display = 'none';
-
-    if (!nombre || !apellido || !email) {
-      mostrarError('Completá nombre, apellido y email.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      mostrarError('El email no parece válido.');
-      return;
-    }
-
-    const btn = document.getElementById('btn-pagar');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div>Procesando…';
-
-    try {
-      const res  = await apiFetch('/api/entradas', {
-        nombre,
-        apellido,
+  try {
+    const res  = await fetch(API + '/api/entradas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre, apellido,
         mail:            email,
-        telefono:        tel || undefined,
-        instagram:       ig  || undefined,
-        tipo_entrada_id: S.tipoSel.id,
-        evento_id:       S.evento.id,
-      });
-      const link = res?.data?.mp_init_point || res?.mp_init_point;
-      if (link) {
-        window.location.href = link;
-      } else {
-        throw new Error('No se recibió el enlace de pago.');
-      }
-    } catch(e) {
-      btn.disabled = false;
-      btn.innerHTML = 'CONFIRMAR Y PAGAR';
-      mostrarError(e.message || 'Ocurrió un error. Intentá de nuevo.');
+        telefono:        tel   || undefined,
+        usuario_ig:      ig    || undefined,
+        tipo_entrada_id: tipoId,
+        evento_id:       S.eventoSel.id,
+      }),
+    });
+    const data = await res.json();
+    const link = data?.data?.mp_init_point || data?.mp_init_point;
+    if (link) {
+      window.location.href = link;
+    } else {
+      throw new Error(data?.error || 'No se recibió el enlace de pago.');
     }
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = 'CONFIRMAR Y PAGAR';
+    errEl.textContent = e.message || 'Ocurrió un error. Intentá de nuevo.';
+    errEl.style.display = 'block';
   }
+}
 
-  function mostrarError(msg) {
-    const el = document.getElementById('form-error');
-    if (!el) return;
-    el.textContent = msg;
-    el.style.display = 'block';
+// ── Álbumes ───────────────────────────────────────────────────
+function renderAlbums(albums) {
+  const el = document.getElementById('albums-wrap');
+  if (!albums.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0">Fotos próximamente…</div>';
+    return;
   }
+  el.innerHTML = `<div class="albums-grid">` +
+    albums.map(a => {
+      const thumb = gpThumb(a.url);
+      return `
+        <a class="album-card" href="${esc(a.url)}" target="_blank" rel="noopener">
+          ${thumb
+            ? `<img class="album-thumb" src="${esc(thumb)}" alt="${esc(a.nombre)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=album-placeholder><svg width=32 height=32 viewBox=0 0 24 24 fill=none stroke=%23666 stroke-width=1.5><rect x=3 y=3 width=18 height=18 rx=2/><circle cx=8.5 cy=8.5 r=1.5/><path d=M21 15l-5-5L5 21/></svg></div><div class=album-overlay><span class=album-nombre>${esc(a.nombre)}</span></div>'">`
+            : `<div class="album-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`
+          }
+          <div class="album-overlay">
+            <span class="album-nombre">${esc(a.nombre)}</span>
+          </div>
+        </a>`;
+    }).join('') + `</div>`;
+}
 
-  // ── Resultado de pago ─────────────────────────────────────
-  function renderResult(tipo) {
-    const cfg = {
-      exito: {
-        mark:  '✓',
-        title: '¡Listo!',
-        body:  'Revisá tu mail — te enviamos el QR de entrada.',
-      },
-      error: {
-        mark:  '✕',
-        title: 'Hubo un problema con el pago.',
-        body:  'Podés intentarlo de nuevo o contactarnos.',
-      },
-      pendiente: {
-        mark:  '○',
-        title: 'Pago en proceso.',
-        body:  'Tu pago está siendo procesado. Te avisamos por mail cuando se confirme.',
-      },
-    };
-    const c = cfg[tipo];
-    document.title = `${c.title} — Condesa`;
-    document.getElementById('app').innerHTML = `
-      <div class="result-page">
-        <img class="result-logo" src="./logo.svg" alt="Condesa">
-        <div class="result-mark">${c.mark}</div>
-        <div class="result-title">${c.title}</div>
-        <p class="result-body">${c.body}</p>
-        <a href="/" class="btn-volver">Volver al inicio</a>
-      </div>`;
-  }
+function gpThumb(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'photos.app.goo.gl') return null;
+    if (u.hostname === 'photos.google.com') {
+      const match = u.pathname.match(/\/([a-zA-Z0-9_-]{20,})/);
+      if (match) return `https://lh3.googleusercontent.com/pw/${match[1]}=w400-h400-c`;
+    }
+  } catch(e) {}
+  return null;
+}
 
-  // ── Utils ─────────────────────────────────────────────────
-  function esc(s) {
-    return String(s ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+// ── Carta ─────────────────────────────────────────────────────
+async function loadCarta() {
+  const el = document.getElementById('carta-wrap');
+  try {
+    const res      = await fetch(CARTA_URL);
+    const data     = await res.json();
+    const productos = data.productos || [];
+    if (!productos.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px">Carta no disponible.</div>';
+      return;
+    }
+    renderCarta(productos);
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px">No se pudo cargar la carta.</div>';
   }
+}
 
-  function fmtFecha(iso) {
-    if (!iso) return '';
-    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
-    return new Date(y, m - 1, d)
-      .toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  }
+function renderCarta(productos) {
+  const cols = ['Vaso','Jarra','Combo','Lata','Bot. Ch.','Botella'];
+  const keys  = ['vaso','jarra','combo','lata','botellaCh','botella'];
+  const activas = keys.filter((k) => productos.some(p => p[k]));
+  const labels  = cols.filter((_,i) => activas.includes(keys[i]));
 
-  function fmtPrecio(p) {
-    const n = parseFloat(p);
-    if (!n) return 'GRATIS';
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency', currency: 'ARS', maximumFractionDigits: 0,
-    }).format(n);
+  const thead = `<tr>
+    <th>Producto</th>
+    ${labels.map(l => `<th>${l}</th>`).join('')}
+  </tr>`;
+
+  const tbody = productos.map(p => {
+    const precios = activas.map(k => {
+      const v = p[k];
+      return v ? `<td class="precio-destacado">${fmtPrecio(v)}</td>`
+               : `<td class="carta-empty-cell">—</td>`;
+    }).join('');
+    return `<tr><td>${esc(p.producto)}</td>${precios}</tr>`;
+  }).join('');
+
+  document.getElementById('carta-wrap').innerHTML =
+    `<div style="overflow-x:auto">
+      <table class="carta-table">
+        <thead>${thead}</thead>
+        <tbody>${tbody}</tbody>
+      </table>
+     </div>`;
+}
+
+// ── Promos ────────────────────────────────────────────────────
+function renderPromos(promos) {
+  const el = document.getElementById('promos-wrap');
+  if (!promos.length) {
+    el.innerHTML = '<div class="no-promos">Sin promos vigentes</div>';
+    return;
   }
+  el.innerHTML = promos.map(p => `
+    <div class="promo-card">
+      ${p.imagen_url ? `<img class="promo-img" src="${esc(p.imagen_url)}" alt="Promo" loading="lazy">` : ''}
+      <div class="promo-body">${esc(p.descripcion)}</div>
+    </div>`).join('');
+}
+
+// ── Utils ─────────────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtPrecio(p) {
+  const n = parseFloat(p);
+  if (!n) return 'GRATIS';
+  return '$' + n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+}
+
+function fmtFechaCorta(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.slice(0,10).split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+}
+
+function fmtFechaLarga(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.slice(0,10).split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+}
+
+function extraerArray(d, key) {
+  if (Array.isArray(d)) return d;
+  if (Array.isArray(d[key])) return d[key];
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && Array.isArray(d.data[key])) return d.data[key];
+  return [];
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>

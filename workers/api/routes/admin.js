@@ -291,5 +291,66 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ deleted: true });
   }
 
+  // ── Config (hero) ──────────────────────────────────────────
+
+  // POST /api/admin/config
+  if (pathname === '/api/admin/config' && method === 'POST') {
+    const body = await parseBody(request);
+    for (const [clave, valor] of Object.entries(body)) {
+      await env.DB.prepare(
+        'INSERT INTO config (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor'
+      ).bind(clave, valor).run();
+    }
+    return ok({ ok: true });
+  }
+
+  // ── Álbumes ────────────────────────────────────────────────
+
+  // GET /api/admin/albums
+  if (pathname === '/api/admin/albums' && method === 'GET') {
+    const r = await env.DB.prepare('SELECT * FROM albums ORDER BY creado_at DESC').all();
+    return ok(r.results || []);
+  }
+
+  // POST /api/admin/albums
+  if (pathname === '/api/admin/albums' && method === 'POST') {
+    const body = await parseBody(request);
+    if (!body.nombre || !body.url) return err('Nombre y URL son requeridos');
+    await env.DB.prepare('INSERT INTO albums (nombre, url) VALUES (?, ?)').bind(body.nombre, body.url).run();
+    return ok({ ok: true }, 201);
+  }
+
+  // DELETE /api/admin/albums/:id
+  const albumMatch = pathname.match(/^\/api\/admin\/albums\/(\d+)$/);
+  if (albumMatch && method === 'DELETE') {
+    await env.DB.prepare('DELETE FROM albums WHERE id = ?').bind(parseInt(albumMatch[1])).run();
+    return ok({ deleted: true });
+  }
+
+  // ── Promos ─────────────────────────────────────────────────
+
+  // GET /api/admin/promos
+  if (pathname === '/api/admin/promos' && method === 'GET') {
+    const r = await env.DB.prepare('SELECT * FROM promos ORDER BY creado_at DESC').all();
+    return ok(r.results || []);
+  }
+
+  // POST /api/admin/promos
+  if (pathname === '/api/admin/promos' && method === 'POST') {
+    const body = await parseBody(request);
+    if (!body.descripcion) return err('Descripción es requerida');
+    await env.DB.prepare(
+      'INSERT INTO promos (descripcion, imagen_url, activa) VALUES (?, ?, 1)'
+    ).bind(body.descripcion, body.imagen_url || null).run();
+    return ok({ ok: true }, 201);
+  }
+
+  // DELETE /api/admin/promos/:id
+  const promoMatch = pathname.match(/^\/api\/admin\/promos\/(\d+)$/);
+  if (promoMatch && method === 'DELETE') {
+    await env.DB.prepare('DELETE FROM promos WHERE id = ?').bind(parseInt(promoMatch[1])).run();
+    return ok({ deleted: true });
+  }
+
   return null; // no matcheó ningún endpoint admin
 }

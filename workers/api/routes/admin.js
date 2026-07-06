@@ -364,7 +364,7 @@ export async function handleAdmin(request, env, pathname) {
 
   // GET /api/admin/promos
   if (pathname === '/api/admin/promos' && method === 'GET') {
-    const r = await env.DB.prepare('SELECT * FROM promos ORDER BY creado_at DESC').all();
+    const r = await env.DB.prepare('SELECT * FROM promos ORDER BY orden ASC, creado_at DESC').all();
     return ok(r.results || []);
   }
 
@@ -372,14 +372,32 @@ export async function handleAdmin(request, env, pathname) {
   if (pathname === '/api/admin/promos' && method === 'POST') {
     const body = await parseBody(request);
     if (!body.descripcion) return err('Descripción es requerida');
+    const maxOrden = await env.DB.prepare('SELECT MAX(orden) as max FROM promos').first();
+    const orden = (maxOrden?.max ?? 0) + 1;
     await env.DB.prepare(
-      'INSERT INTO promos (descripcion, imagen_url, activa) VALUES (?, ?, 1)'
-    ).bind(body.descripcion, body.imagen_url || null).run();
+      'INSERT INTO promos (nombre, descripcion, imagen_url, activa, whatsapp, orden) VALUES (?, ?, ?, 1, ?, ?)'
+    ).bind(
+      body.nombre || null,
+      body.descripcion,
+      body.imagen_url || null,
+      body.whatsapp ? 1 : 0,
+      orden
+    ).run();
     return ok({ ok: true }, 201);
   }
 
-  // DELETE /api/admin/promos/:id
+  // PUT /api/admin/promos/:id (actualizar orden)
   const promoMatch = pathname.match(/^\/api\/admin\/promos\/(\d+)$/);
+  if (promoMatch && method === 'PUT') {
+    const id = parseInt(promoMatch[1]);
+    const body = await parseBody(request);
+    if (body.orden !== undefined) {
+      await env.DB.prepare('UPDATE promos SET orden = ? WHERE id = ?').bind(body.orden, id).run();
+    }
+    return ok({ ok: true });
+  }
+
+  // DELETE /api/admin/promos/:id
   if (promoMatch && method === 'DELETE') {
     await env.DB.prepare('DELETE FROM promos WHERE id = ?').bind(parseInt(promoMatch[1])).run();
     return ok({ deleted: true });

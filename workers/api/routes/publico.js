@@ -114,7 +114,7 @@ export async function handlePublico(request, env, pathname) {
     const [eventosRes, albumsRes, promosRes, configRes] = await Promise.all([
       env.DB.prepare('SELECT * FROM eventos ORDER BY fecha ASC').all(),
       env.DB.prepare('SELECT * FROM albums ORDER BY creado_at DESC').all(),
-      env.DB.prepare('SELECT * FROM promos WHERE activa = 1 ORDER BY creado_at DESC').all(),
+      env.DB.prepare('SELECT * FROM promos WHERE activa = 1 ORDER BY orden ASC, creado_at DESC').all(),
       env.DB.prepare('SELECT * FROM config').all(),
     ]);
 

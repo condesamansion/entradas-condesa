@@ -530,6 +530,18 @@
       </div>
     </div>
 
+    <!-- WhatsApp -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title" style="margin-bottom:12px">WhatsApp de contacto</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Número (formato internacional, sin + ni espacios)</label>
+          <input id="wp-numero" type="tel" placeholder="5493584123456">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="guardarWhatsapp()">Guardar número</button>
+    </div>
+
     <!-- Álbumes -->
     <div class="card" style="margin-bottom:20px">
       <div class="section-header" style="margin-bottom:12px">
@@ -729,12 +741,20 @@
     </div>
     <div class="modal-body">
       <div class="form-group">
+        <label>Nombre de la promo (opcional)</label>
+        <input id="promo-nombre" type="text" placeholder="Ej: 2x1 Fernet">
+      </div>
+      <div class="form-group">
         <label>Descripción *</label>
         <textarea id="promo-desc" placeholder="2x1 en Fernet hasta las 2am…"></textarea>
       </div>
       <div class="form-group">
         <label>Imagen (opcional)</label>
         <input id="promo-file" type="file" accept="image/*">
+      </div>
+      <div class="checkbox-row" style="margin-top:8px">
+        <input id="promo-whatsapp" type="checkbox">
+        <label for="promo-whatsapp">Agregar botón de WhatsApp en la promo</label>
       </div>
     </div>
     <div class="modal-footer">
@@ -1653,6 +1673,9 @@ async function loadLanding() {
       document.getElementById('hero-img-mobile').src = cfg.hero_url_mobile;
       document.getElementById('hero-preview-mobile').style.display = 'block';
     }
+    if (cfg.whatsapp_numero) {
+      document.getElementById('wp-numero').value = cfg.whatsapp_numero;
+    }
   } catch(e) {}
 }
 
@@ -1736,28 +1759,54 @@ async function loadPromos() {
       setHtml('promos-list', '<div class="empty"><div class="empty-title">Sin promos</div>Agregá una promo para mostrarla en la landing</div>');
       return;
     }
-    setHtml('promos-list', promos.map(p => `
+    promos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+    setHtml('promos-list', promos.map((p, i) => `
       <div class="card" style="margin-bottom:8px">
         <div class="card-header">
           <div style="flex:1">
-            ${p.imagen_url ? `<img src="${esc(p.imagen_url)}" style="width:100%;max-height:120px;object-fit:cover;margin-bottom:8px;border:1px solid var(--border)">` : ''}
-            <div class="card-meta" style="color:var(--text);font-size:13px">${esc(p.descripcion)}</div>
+            ${p.imagen_url ? `<img src="${esc(p.imagen_url)}" style="width:100%;max-height:100px;object-fit:cover;margin-bottom:8px;border:1px solid var(--border)">` : ''}
+            ${p.nombre ? `<div style="font-weight:700;margin-bottom:4px">${esc(p.nombre)}</div>` : ''}
+            <div class="card-meta" style="color:var(--text);font-size:12px">${esc(p.descripcion)}</div>
+            ${p.whatsapp ? `<div style="font-size:11px;color:#25d366;margin-top:4px">✓ Botón WhatsApp activo</div>` : ''}
           </div>
-          <div class="card-actions">
+          <div class="card-actions" style="flex-direction:column;gap:4px;align-items:flex-end">
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="moverPromo(${p.id}, ${p.orden || i+1}, 'up')" ${i === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-sm" onclick="moverPromo(${p.id}, ${p.orden || i+1}, 'down')" ${i === promos.length-1 ? 'disabled' : ''}>↓</button>
+            </div>
             <button class="btn btn-sm btn-danger" onclick="deletePromo(${p.id})">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             </button>
           </div>
         </div>
       </div>`).join(''));
+    window._promos = promos;
   } catch(e) {
     setHtml('promos-list', `<div class="empty">Error: ${esc(e.message)}</div>`);
   }
 }
 
+async function moverPromo(id, ordenActual, direccion) {
+  const promos = (window._promos || []).sort((a,b) => (a.orden||0) - (b.orden||0));
+  const idx    = promos.findIndex(p => p.id === id);
+  if (idx < 0) return;
+  const swapIdx = direccion === 'up' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= promos.length) return;
+  const swapPromo = promos[swapIdx];
+  try {
+    await Promise.all([
+      apiFetch('PUT', `/api/admin/promos/${id}`, { orden: swapPromo.orden || swapIdx + 1 }),
+      apiFetch('PUT', `/api/admin/promos/${swapPromo.id}`, { orden: ordenActual }),
+    ]);
+    await loadPromos();
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+}
+
 function openPromoModal() {
+  document.getElementById('promo-nombre').value = '';
   document.getElementById('promo-desc').value = '';
   document.getElementById('promo-file').value = '';
+  document.getElementById('promo-whatsapp').checked = false;
   openModal('modal-promo');
 }
 
@@ -1776,7 +1825,12 @@ async function submitPromo() {
   }
 
   try {
-    await apiFetch('POST', '/api/admin/promos', { descripcion: desc, imagen_url });
+    await apiFetch('POST', '/api/admin/promos', {
+      nombre:      document.getElementById('promo-nombre').value.trim() || undefined,
+      descripcion: desc,
+      imagen_url,
+      whatsapp:    document.getElementById('promo-whatsapp').checked ? 1 : 0,
+    });
     toast('Promo agregada', 'success');
     closeModal('modal-promo');
     loadPromos();
@@ -1789,6 +1843,15 @@ async function deletePromo(id) {
     await apiFetch('DELETE', `/api/admin/promos/${id}`);
     toast('Promo eliminada', 'success');
     loadPromos();
+  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+}
+
+async function guardarWhatsapp() {
+  const numero = document.getElementById('wp-numero').value.trim();
+  if (!numero) { toast('Ingresá un número', 'error'); return; }
+  try {
+    await apiFetch('POST', '/api/admin/config', { whatsapp_numero: numero });
+    toast('Número guardado', 'success');
   } catch(e) { toast(`Error: ${e.message}`, 'error'); }
 }
 

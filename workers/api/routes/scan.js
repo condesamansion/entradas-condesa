@@ -1,18 +1,34 @@
 // workers/api/routes/scan.js
-// Endpoint protegido por Cloudflare Access (rol: portero)
 
 import { getEntradaByToken, marcarEntradaUsada } from '../lib/db.js';
-import { ok, err } from '../lib/utils.js';
+import { ok } from '../lib/utils.js';
 
 export async function handleScan(request, env, pathname) {
-  // GET /api/scan/:token
+
+  // POST /api/scan/:token/confirmar — marca como usada (se llama después de mostrar VÁLIDO)
+  const matchConfirmar = pathname.match(/^\/api\/scan\/([a-f0-9-]{36})\/confirmar$/i);
+  if (matchConfirmar && request.method === 'POST') {
+    const token = matchConfirmar[1];
+    const entrada = await getEntradaByToken(env.DB, token);
+
+    if (!entrada) {
+      return ok({ resultado: 'invalido', codigo: 'NOT_FOUND' });
+    }
+    if (entrada.estado === 'usada') {
+      return ok({ resultado: 'ya_confirmada', codigo: 'YA_USADA' });
+    }
+
+    await marcarEntradaUsada(env.DB, token);
+    return ok({ resultado: 'confirmada', codigo: 'OK' });
+  }
+
+  // GET /api/scan/:token — solo verifica, no marca como usada
   const match = pathname.match(/^\/api\/scan\/([a-f0-9-]{36})$/i);
   if (!match || request.method !== 'GET') return null;
 
   const token = match[1];
   const entrada = await getEntradaByToken(env.DB, token);
 
-  // Token no existe
   if (!entrada) {
     return ok({
       resultado: 'invalido',
@@ -21,7 +37,6 @@ export async function handleScan(request, env, pathname) {
     });
   }
 
-  // Verificar que pertenece al evento activo
   const eventoActivo = await env.DB
     .prepare('SELECT id FROM eventos WHERE activo = 1 LIMIT 1')
     .first();
@@ -35,7 +50,6 @@ export async function handleScan(request, env, pathname) {
     });
   }
 
-  // Ya fue usada
   if (entrada.estado === 'usada') {
     return ok({
       resultado: 'usada',
@@ -46,7 +60,6 @@ export async function handleScan(request, env, pathname) {
     });
   }
 
-  // Pendiente de pago
   if (entrada.estado === 'pendiente_pago') {
     return ok({
       resultado: 'invalido',
@@ -56,9 +69,7 @@ export async function handleScan(request, env, pathname) {
     });
   }
 
-  // ✅ Válida — marcar como usada
-  await marcarEntradaUsada(env.DB, token);
-
+  // ✅ Válida — devuelve info pero NO marca como usada todavía
   return ok({
     resultado: 'valido',
     codigo: 'OK',

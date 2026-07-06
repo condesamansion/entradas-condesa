@@ -406,19 +406,32 @@
         const res  = await fetch(`${API}/api/scan/${token}`);
         const json = await res.json();
         const d    = json.data || json;
-        mostrarResultado(d);
+        mostrarResultado(d, token);
       } catch (e) {
         mostrarResultado({
           resultado: 'invalido',
           codigo:    'NET_ERROR',
           mensaje:   'Error de red — verificá la conexión',
-        });
+        }, null);
       }
+    }
+
+    async function confirmarIngreso(token) {
+      if (!token) return;
+      // Reintenta hasta 5 veces con 2s de espera entre intentos
+      for (let i = 0; i < 5; i++) {
+        try {
+          const res = await fetch(`${API}/api/scan/${token}/confirmar`, { method: 'POST' });
+          if (res.ok) return;
+        } catch (e) {}
+        await new Promise(r => setTimeout(r, 2000));
+      }
+      // Si fallan todos los intentos, el portero ya vio VÁLIDO — al reescanear aparece YA USADA
     }
 
     // ── Resultado ─────────────────────────────────────────────
 
-    function mostrarResultado(d) {
+    function mostrarResultado(d, token) {
       const screen  = document.getElementById('s-result');
       const e       = d.entrada || {};
 
@@ -461,6 +474,8 @@
           msgEl.textContent = `⚑ ${e.mensaje_especial}`;
           msgEl.style.color = 'rgba(255,220,50,.85)';
         }
+
+        confirmarIngreso(token);
 
       } else if (d.resultado === 'usada') {
         screen.style.background = '#3d3000';

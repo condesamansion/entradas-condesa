@@ -37,6 +37,10 @@ export async function crearPreference({ accessToken, entrada, tipoNombre, evento
     external_reference: entrada.qr_token, // usamos el token como referencia única
     statement_descriptor: 'CONDESA',
     expires: false,
+    payment_methods: {
+      excluded_payment_types: [],
+      installments: 1,
+    },
   };
 
   const res = await fetch(`${MP_API}/checkout/preferences`, {

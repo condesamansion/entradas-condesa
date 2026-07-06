@@ -536,7 +536,10 @@
         <div class="card-title">Álbumes de fotos</div>
         <button class="btn btn-sm btn-primary" onclick="openAlbumModal()">+ Agregar álbum</button>
       </div>
-      <div id="albums-list"><div class="loading"><div class="spinner"></div></div></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        Pegá el link de un álbum público de Google Photos. El título y la portada se extraen automáticamente.
+      </p>
+      <div id="albums-list"><div class="empty">Los álbumes se gestionan desde Google Photos.<br>Usá "+ Agregar álbum" para agregar uno nuevo.</div></div>
     </div>
 
     <!-- Promos -->
@@ -703,17 +706,16 @@
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Nombre del álbum *</label>
-        <input id="alb-nombre" type="text" placeholder="Ej: Fiesta Electrónica · Dic 2025">
-      </div>
-      <div class="form-group">
         <label>URL del álbum de Google Photos *</label>
         <input id="alb-url" type="url" placeholder="https://photos.app.goo.gl/...">
+        <p style="font-size:11px;color:var(--muted);margin-top:6px">
+          El título y la portada se extraen automáticamente del álbum.
+        </p>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-album')">Cancelar</button>
-      <button class="btn btn-primary" onclick="submitAlbum()">Agregar álbum</button>
+      <button class="btn btn-primary" id="btn-alb-save" onclick="submitAlbum()">Agregar álbum</button>
     </div>
   </div>
 </div>
@@ -1687,60 +1689,42 @@ async function guardarHero(version = 'desktop') {
   }
 }
 
-async function loadAlbums() {
-  loading('albums-list');
-  try {
-    const d = await apiFetch('GET', '/api/admin/albums');
-    const albums = Array.isArray(d) ? d : (d.data || []);
-    if (!albums.length) {
-      setHtml('albums-list', '<div class="empty"><div class="empty-title">Sin álbumes</div>Agregá el link de un álbum de Google Photos</div>');
-      return;
-    }
-    setHtml('albums-list', albums.map(a => `
-      <div class="card" style="margin-bottom:8px">
-        <div class="card-header">
-          <div>
-            <div class="card-title">${esc(a.nombre)}</div>
-            <div class="card-meta" style="word-break:break-all">${esc(a.url)}</div>
-          </div>
-          <div class="card-actions">
-            <a href="${esc(a.url)}" target="_blank" class="btn btn-sm">Ver</a>
-            <button class="btn btn-sm btn-danger" onclick="deleteAlbum(${a.id})">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>`).join(''));
-  } catch(e) {
-    setHtml('albums-list', `<div class="empty">Error: ${esc(e.message)}</div>`);
-  }
+const ALBUMS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzFEegll0jVFEktgJRQzvM3d9DYjKZARsmOfnUZmU-zqszVHIqQp19-dCJ_GboyvuSs/exec';
+
+function loadAlbums() {
+  // Los álbumes viven en Google Sheets — no los listamos en el admin
 }
 
 function openAlbumModal() {
-  document.getElementById('alb-nombre').value = '';
   document.getElementById('alb-url').value = '';
   openModal('modal-album');
 }
 
 async function submitAlbum() {
-  const nombre = document.getElementById('alb-nombre').value.trim();
-  const url    = document.getElementById('alb-url').value.trim();
-  if (!nombre || !url) { toast('Nombre y URL son requeridos', 'error'); return; }
-  try {
-    await apiFetch('POST', '/api/admin/albums', { nombre, url });
-    toast('Álbum agregado', 'success');
-    closeModal('modal-album');
-    loadAlbums();
-  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
-}
+  const url = document.getElementById('alb-url').value.trim();
+  if (!url) { toast('Pegá una URL de Google Photos', 'error'); return; }
+  if (!url.includes('photos.app.goo.gl') && !url.includes('photos.google.com')) {
+    toast('La URL debe ser de Google Photos', 'error');
+    return;
+  }
 
-async function deleteAlbum(id) {
-  if (!confirm('¿Eliminar este álbum?')) return;
+  const btn = document.getElementById('btn-alb-save');
+  btn.disabled = true; btn.textContent = 'Agregando…';
+
   try {
-    await apiFetch('DELETE', `/api/admin/albums/${id}`);
-    toast('Álbum eliminado', 'success');
-    loadAlbums();
-  } catch(e) { toast(`Error: ${e.message}`, 'error'); }
+    const body = new URLSearchParams({ url });
+    await fetch(ALBUMS_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+    toast('Álbum agregado — aparecerá en la página de fotos', 'success');
+    closeModal('modal-album');
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Agregar álbum';
+  }
 }
 
 async function loadPromos() {

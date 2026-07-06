@@ -123,12 +123,14 @@ export async function handlePublico(request, env, pathname) {
       config[row.clave] = row.valor;
     }
 
-    return ok({
+    const response = ok({
       eventos:  eventosRes.results  || [],
       albums:   albumsRes.results   || [],
       promos:   promosRes.results   || [],
       config,
     });
+    response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    return response;
   }
 
   return null;

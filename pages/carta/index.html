@@ -7,6 +7,9 @@
   <link rel="icon" href="https://condesamansion.com.ar/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://lh3.googleusercontent.com">
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="dns-prefetch" href="https://entradas-qr-condesa.condesa.workers.dev">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --bg:#333333; --text:#f1f1f1; --muted:#888; --border:#4a4a4a; }
@@ -17,10 +20,11 @@
     .nav-back:hover { color:var(--text); }
     .nav-logo { height:24px; }
 
-    .hero-band { margin-top:53px; height:38vh; min-height:200px; position:relative; overflow:hidden; background:#1a1a1a; display:flex; align-items:center; justify-content:center; }
+    .hero-band { margin-top:53px; height:38vh; min-height:200px; position:relative; overflow:hidden; background:#1a1a1a; display:flex; flex-direction:column; gap:0; align-items:center; justify-content:center; }
     .hero-band-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.4); }
     .hero-band-overlay { position:absolute; inset:0; background:linear-gradient(to bottom, transparent 30%, #333333 100%); }
     .hero-band-title { position:relative; z-index:2; font-size:clamp(36px,10vw,72px); font-weight:800; letter-spacing:-2px; }
+    .hero-band-slogan { position:relative; z-index:2; width:min(180px,45vw); opacity:.5; margin-top:12px; }
 
     .content { max-width:640px; margin:0 auto; padding:40px 20px 80px; }
 
@@ -77,6 +81,7 @@
 <div class="hero-band" id="hero-band">
   <div class="hero-band-overlay"></div>
   <div class="hero-band-title">Carta</div>
+  <img class="hero-band-slogan" src="https://condesamansion.com.ar/slogan.svg" alt="#LaMansionEstaDeFiesta">
 </div>
 
 <div class="content">

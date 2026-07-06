@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fechas — Condesa</title>
+  <link rel="icon" href="https://condesamansion.com.ar/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#333333; --text:#f1f1f1; --muted:#888; --border:#4a4a4a; --surface:#2b2b2b; }
+    html { scroll-behavior: smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'Montserrat',Arial,sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased; }
+
+    /* NAV */
+    .nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(30,30,30,.97); border-bottom:1px solid var(--border); }
+    .nav-back { display:flex; align-items:center; gap:8px; color:var(--muted); text-decoration:none; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; transition:color .15s; }
+    .nav-back:hover { color:var(--text); }
+    .nav-logo { height:24px; }
+
+    /* HERO BAND */
+    .hero-band {
+      margin-top:53px;
+      height:38vh;
+      min-height:200px;
+      position:relative;
+      overflow:hidden;
+      background:#1a1a1a;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .hero-band-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; filter:brightness(.4); }
+    .hero-band-overlay { position:absolute; inset:0; background:linear-gradient(to bottom, transparent 30%, #333333 100%); }
+    .hero-band-title { position:relative; z-index:2; font-size:clamp(36px,10vw,72px); font-weight:800; letter-spacing:-2px; line-height:1; text-align:center; }
+
+    /* CONTENT */
+    .content { max-width:640px; margin:0 auto; padding:40px 20px 80px; }
+
+    /* EVENTO CARD */
+    .evento-card {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:24px 0;
+      border-bottom:1px solid var(--border);
+      text-decoration:none;
+      color:var(--text);
+      cursor:pointer;
+      transition:opacity .15s;
+    }
+    .evento-card:first-child { border-top:1px solid var(--border); }
+    .evento-card:hover { opacity:.8; }
+    .evento-fecha { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+    .evento-nombre { font-size:22px; font-weight:800; letter-spacing:-.5px; line-height:1.1; }
+    .evento-badge { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border:1px solid var(--border); color:var(--muted); white-space:nowrap; flex-shrink:0; }
+    .evento-badge.activo { border-color:var(--text); color:var(--text); }
+
+    .empty { text-align:center; padding:60px 20px; color:var(--muted); font-size:13px; }
+    .spinner { display:inline-block; width:18px; height:18px; border:2px solid rgba(241,241,241,.15); border-top-color:rgba(241,241,241,.6); border-radius:50%; animation:spin .6s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* FOOTER */
+    .footer { border-top:1px solid var(--border); padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:16px; max-width:640px; margin:0 auto; }
+    .footer-logo { width:50px; opacity:.12; }
+    .footer-slogan { width:140px; opacity:.12; }
+    .footer-copy { font-size:10px; color:#555; letter-spacing:1px; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-back" href="/">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Inicio
+  </a>
+  <img class="nav-logo" src="https://condesamansion.com.ar/logohorizontal.svg" alt="Condesa">
+</nav>
+
+<div class="hero-band" id="hero-band">
+  <div class="hero-band-overlay"></div>
+  <div class="hero-band-title">Fechas</div>
+</div>
+
+<div class="content">
+  <div id="eventos-wrap"><div style="text-align:center;padding:40px"><div class="spinner"></div></div></div>
+</div>
+
+<footer class="footer">
+  <img class="footer-logo" src="https://condesamansion.com.ar/logo.svg" alt="Condesa">
+  <img class="footer-slogan" src="https://condesamansion.com.ar/slogan.svg" alt="#LaMansionEstaDeFiesta">
+  <div class="footer-copy">© Condesa · Alcira Gigena</div>
+</footer>
+
+<script>
+const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+
+async function init() {
+  try {
+    const res = await fetch(API + '/api/landing').then(r => r.json());
+    const d   = res.data || res;
+    const cfg = d.config || {};
+
+    const heroUrl = cfg.hero_url_mobile || cfg.hero_url;
+    if (heroUrl) {
+      const img = document.createElement('img');
+      img.className = 'hero-band-bg';
+      img.src = heroUrl;
+      document.getElementById('hero-band').insertBefore(img, document.getElementById('hero-band').firstChild);
+    }
+
+    renderEventos(d.eventos || []);
+  } catch(e) {
+    document.getElementById('eventos-wrap').innerHTML = '<div class="empty">Error al cargar eventos</div>';
+  }
+}
+
+function renderEventos(eventos) {
+  const el = document.getElementById('eventos-wrap');
+  if (!eventos.length) {
+    el.innerHTML = '<div class="empty">Próximamente…</div>';
+    return;
+  }
+  el.innerHTML = eventos.map(ev => {
+    const activo = ev.activo == 1;
+    return `
+      <div class="evento-card" onclick="location.href='/eventos/detalle?id=${ev.id}'">
+        <div>
+          <div class="evento-fecha">${fmtFecha(ev.fecha)}</div>
+          <div class="evento-nombre">${esc(ev.nombre)}</div>
+        </div>
+        <div class="evento-badge ${activo ? 'activo' : ''}">${activo ? 'Entradas' : 'Próximo'}</div>
+      </div>`;
+  }).join('');
+}
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtFecha(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.slice(0,10).split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+}
+
+init();
+</script>
+</body>
+</html>

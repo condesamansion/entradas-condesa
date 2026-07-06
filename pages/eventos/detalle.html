@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evento — Condesa</title>
+  <link rel="icon" href="https://condesamansion.com.ar/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#333333; --text:#f1f1f1; --muted:#888; --border:#4a4a4a; }
+    body { background:var(--bg); color:var(--text); font-family:'Montserrat',Arial,sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased; }
+
+    .nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(30,30,30,.97); border-bottom:1px solid var(--border); }
+    .nav-back { display:flex; align-items:center; gap:8px; color:var(--muted); text-decoration:none; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; transition:color .15s; }
+    .nav-back:hover { color:var(--text); }
+    .nav-logo { height:24px; }
+
+    .content { max-width:640px; margin:0 auto; padding:80px 20px 80px; }
+
+    .evento-flyer { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; margin-bottom:28px; border:1px solid var(--border); }
+    .evento-fecha { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+    .evento-nombre { font-size:clamp(28px,8vw,52px); font-weight:800; letter-spacing:-1px; line-height:1; margin-bottom:16px; }
+    .evento-desc { font-size:14px; font-weight:300; color:var(--muted); line-height:1.8; margin-bottom:32px; }
+
+    .tipos-section-label { font-size:10px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+    .tipo-card { border:1px solid var(--border); padding:20px; margin-bottom:1px; transition:border-color .15s; }
+    .tipo-card.selected { border-color:var(--text); }
+    .tipo-header { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:6px; }
+    .tipo-nombre { font-size:16px; font-weight:700; }
+    .tipo-precio { font-size:16px; font-weight:700; white-space:nowrap; }
+    .tipo-beneficios { font-size:12px; font-weight:300; color:var(--muted); line-height:1.6; margin-bottom:14px; }
+    .btn-comprar { width:100%; background:var(--text); color:var(--bg); border:none; padding:13px; font-family:'Montserrat',Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:opacity .15s; }
+    .btn-comprar:hover { opacity:.85; }
+    .btn-proximamente { width:100%; background:transparent; color:var(--muted); border:1px solid var(--border); padding:13px; font-family:'Montserrat',Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:default; }
+
+    .form-compra { border:1px solid var(--text); padding:24px 20px; margin-top:1px; }
+    .form-title { font-size:10px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    @media (max-width:400px) { .form-row { grid-template-columns:1fr; } }
+    .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+    .form-row .form-group { margin-bottom:0; }
+    .form-group label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+    .form-group input { background:transparent; border:1px solid var(--border); color:var(--text); font-family:'Montserrat',Arial,sans-serif; font-size:14px; padding:10px 12px; outline:none; transition:border-color .15s; -webkit-appearance:none; }
+    .form-group input:focus { border-color:var(--text); }
+    .form-error { color:#e05252; font-size:12px; margin-top:4px; display:none; }
+    .btn-pagar { width:100%; background:var(--text); color:var(--bg); border:none; padding:15px; font-family:'Montserrat',Arial,sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity .15s; }
+    .btn-pagar:disabled { opacity:.45; cursor:not-allowed; }
+    .btn-cancelar-form { width:100%; background:transparent; border:none; color:var(--muted); padding:10px; font-family:'Montserrat',Arial,sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; cursor:pointer; margin-top:8px; transition:color .15s; }
+    .btn-cancelar-form:hover { color:var(--text); }
+
+    .spinner { display:inline-block; width:18px; height:18px; border:2px solid rgba(241,241,241,.15); border-top-color:rgba(241,241,241,.6); border-radius:50%; animation:spin .6s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .footer { border-top:1px solid var(--border); padding:40px 20px; display:flex; flex-direction:column; align-items:center; gap:16px; max-width:640px; margin:0 auto; }
+    .footer-logo { width:50px; opacity:.12; }
+    .footer-slogan { width:140px; opacity:.12; }
+    .footer-copy { font-size:10px; color:#555; letter-spacing:1px; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-back" href="/eventos">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Fechas
+  </a>
+  <img class="nav-logo" src="https://condesamansion.com.ar/logohorizontal.svg" alt="Condesa">
+</nav>
+
+<div class="content">
+  <div id="detalle-wrap"><div style="text-align:center;padding:60px"><div class="spinner"></div></div></div>
+</div>
+
+<footer class="footer">
+  <img class="footer-logo" src="https://condesamansion.com.ar/logo.svg" alt="Condesa">
+  <img class="footer-slogan" src="https://condesamansion.com.ar/slogan.svg" alt="#LaMansionEstaDeFiesta">
+  <div class="footer-copy">© Condesa · Alcira Gigena</div>
+</footer>
+
+<script>
+const API = 'https://entradas-qr-condesa.condesa.workers.dev';
+const params = new URLSearchParams(location.search);
+const eventoId = params.get('id');
+let eventoActual = null;
+let tipoSel = null;
+
+async function init() {
+  if (!eventoId) { location.href = '/eventos'; return; }
+  try {
+    const [landingRes, tiposRes] = await Promise.all([
+      fetch(API + '/api/landing').then(r => r.json()),
+      fetch(API + `/api/admin/tipos-entrada?evento_id=${eventoId}`).then(r => r.json()),
+    ]);
+    const eventos = (landingRes.data || landingRes).eventos || [];
+    eventoActual  = eventos.find(e => e.id == eventoId);
+    if (!eventoActual) { location.href = '/eventos'; return; }
+
+    const tipos = extraerArray(tiposRes, 'tipos').filter(t => t.visible_publico != 0 && t.precio > 0);
+    document.title = `${eventoActual.nombre} — Condesa`;
+    renderDetalle(eventoActual, tipos);
+  } catch(e) {
+    document.getElementById('detalle-wrap').innerHTML = '<div style="text-align:center;padding:40px;color:#888">Error al cargar</div>';
+  }
+}
+
+function renderDetalle(ev, tipos) {
+  const activo = ev.activo == 1;
+  const fecha  = fmtFecha(ev.fecha);
+  const hora   = ev.fecha ? ev.fecha.slice(11,16) : '';
+
+  const tiposHtml = tipos.length ? tipos.map(t => `
+    <div class="tipo-card" id="tipo-${t.id}">
+      <div class="tipo-header">
+        <span class="tipo-nombre">${esc(t.nombre)}</span>
+        <span class="tipo-precio">${fmtPrecio(t.precio)}</span>
+      </div>
+      ${t.beneficios ? `<div class="tipo-beneficios">${esc(t.beneficios)}</div>` : ''}
+      ${activo
+        ? `<button class="btn-comprar" onclick="seleccionarTipo(${t.id})">COMPRAR ENTRADA</button>`
+        : `<button class="btn-proximamente" disabled>PRÓXIMAMENTE</button>`}
+    </div>
+    <div id="form-${t.id}"></div>
+  `).join('') : `<div style="color:var(--muted);font-size:13px;padding:12px 0">Entradas disponibles próximamente.</div>`;
+
+  document.getElementById('detalle-wrap').innerHTML = `
+    ${ev.flyer_url ? `<img class="evento-flyer" src="${esc(ev.flyer_url)}" alt="${esc(ev.nombre)}">` : ''}
+    <div class="evento-fecha">${fecha}${hora ? ' · ' + hora + 'h' : ''}</div>
+    <div class="evento-nombre">${esc(ev.nombre)}</div>
+    ${ev.descripcion ? `<div class="evento-desc">${esc(ev.descripcion)}</div>` : ''}
+    <div class="tipos-section-label">Entradas</div>
+    ${tiposHtml}`;
+}
+
+function seleccionarTipo(tipoId) {
+  document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('[id^="form-"]').forEach(f => f.innerHTML = '');
+  document.getElementById(`tipo-${tipoId}`)?.classList.add('selected');
+  tipoSel = tipoId;
+  document.getElementById(`form-${tipoId}`).innerHTML = `
+    <div class="form-compra">
+      <div class="form-title">Tus datos</div>
+      <div class="form-row">
+        <div class="form-group"><label>Nombre *</label><input id="f-nombre" type="text" autocomplete="given-name" placeholder="Nombre"></div>
+        <div class="form-group"><label>Apellido *</label><input id="f-apellido" type="text" autocomplete="family-name" placeholder="Apellido"></div>
+      </div>
+      <div class="form-group"><label>Email *</label><input id="f-email" type="email" autocomplete="email" placeholder="correo@ejemplo.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Teléfono</label><input id="f-tel" type="tel" placeholder="+54 9 …"></div>
+        <div class="form-group"><label>Instagram</label><input id="f-ig" type="text" placeholder="@usuario"></div>
+      </div>
+      <div class="form-error" id="form-error"></div>
+      <button class="btn-pagar" id="btn-pagar" onclick="submitCompra(${tipoId})">CONFIRMAR Y PAGAR</button>
+      <button type="button" class="btn-cancelar-form" onclick="cancelarForm(${tipoId})">Cancelar</button>
+    </div>`;
+  setTimeout(() => document.getElementById(`form-${tipoId}`)?.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+}
+
+function cancelarForm(tipoId) {
+  document.getElementById(`form-${tipoId}`).innerHTML = '';
+  document.getElementById(`tipo-${tipoId}`)?.classList.remove('selected');
+  tipoSel = null;
+}
+
+async function submitCompra(tipoId) {
+  const nombre   = document.getElementById('f-nombre')?.value.trim();
+  const apellido = document.getElementById('f-apellido')?.value.trim();
+  const email    = document.getElementById('f-email')?.value.trim();
+  const tel      = document.getElementById('f-tel')?.value.trim();
+  const ig       = document.getElementById('f-ig')?.value.trim();
+  const errEl    = document.getElementById('form-error');
+  errEl.style.display = 'none';
+
+  if (!nombre || !apellido || !email) { errEl.textContent = 'Completá nombre, apellido y email.'; errEl.style.display = 'block'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'El email no parece válido.'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('btn-pagar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(51,51,51,.2);border-top-color:#333"></div>Procesando…';
+
+  try {
+    const res  = await fetch(API + '/api/entradas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, apellido, mail:email, telefono:tel||undefined, usuario_ig:ig||undefined, tipo_entrada_id:tipoId, evento_id:eventoActual.id }),
+    });
+    const data = await res.json();
+    const link = data?.data?.mp_init_point || data?.mp_init_point;
+    if (link) { window.location.href = link; }
+    else { throw new Error(data?.error || 'No se recibió el enlace de pago.'); }
+  } catch(e) {
+    btn.disabled = false; btn.innerHTML = 'CONFIRMAR Y PAGAR';
+    errEl.textContent = e.message || 'Ocurrió un error. Intentá de nuevo.';
+    errEl.style.display = 'block';
+  }
+}
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtPrecio(p) { const n=parseFloat(p); if(!n) return 'GRATIS'; return '$'+n.toLocaleString('es-AR',{maximumFractionDigits:0}); }
+function fmtFecha(iso) { if(!iso) return ''; const [y,m,d]=iso.slice(0,10).split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase(); }
+function extraerArray(d,key) { if(Array.isArray(d)) return d; if(Array.isArray(d[key])) return d[key]; if(Array.isArray(d.data)) return d.data; if(d.data&&Array.isArray(d.data[key])) return d.data[key]; return []; }
+
+init();
+</script>
+</body>
+</html>

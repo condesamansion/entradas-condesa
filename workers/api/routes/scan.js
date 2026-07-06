@@ -37,15 +37,22 @@ export async function handleScan(request, env, pathname) {
     });
   }
 
-  const eventoActivo = await env.DB
-    .prepare('SELECT id FROM eventos WHERE activo = 1 LIMIT 1')
-    .first();
+  // Verificar fecha del evento (válido el día del evento y hasta las 8am del día siguiente)
+  const fechaEvento = new Date(entrada.evento_fecha);
+  const ahora = new Date();
 
-  if (!eventoActivo || entrada.evento_id !== eventoActivo.id) {
+  const inicioEvento = new Date(fechaEvento);
+  inicioEvento.setHours(0, 0, 0, 0);
+
+  const limitePost = new Date(fechaEvento);
+  limitePost.setDate(limitePost.getDate() + 1);
+  limitePost.setHours(11, 0, 0, 0); // 8am ARG = 11am UTC
+
+  if (ahora < inicioEvento || ahora > limitePost) {
     return ok({
-      resultado: 'invalido',
-      codigo: 'EVENTO_INCORRECTO',
-      mensaje: 'Esta entrada no corresponde al evento activo',
+      resultado: 'otro_dia',
+      codigo: 'FECHA_INCORRECTA',
+      mensaje: `Esta entrada es para ${fmtFechaEvento(entrada.evento_fecha)}`,
       entrada: resumenEntrada(entrada),
     });
   }
@@ -79,6 +86,12 @@ export async function handleScan(request, env, pathname) {
       mensaje_especial: entrada.mensaje_especial,
     },
   });
+}
+
+function fmtFechaEvento(iso) {
+  if (!iso) return 'otro evento';
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function resumenEntrada(e) {

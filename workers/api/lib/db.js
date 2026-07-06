@@ -4,9 +4,11 @@
 // ── Eventos ──────────────────────────────────────────────────
 
 export async function getEventoActivo(db) {
-  return db
-    .prepare('SELECT * FROM eventos WHERE activo = 1 LIMIT 1')
-    .first();
+  return db.prepare('SELECT * FROM eventos WHERE activo = 1 ORDER BY fecha ASC LIMIT 1').first();
+}
+
+export async function getEventosActivos(db) {
+  return (await db.prepare('SELECT * FROM eventos WHERE activo = 1 ORDER BY fecha ASC').all()).results;
 }
 
 export async function getEventos(db) {
@@ -42,12 +44,8 @@ export async function updateEvento(db, id, data) {
     .run();
 }
 
-export async function setEventoActivo(db, id) {
-  // Desactiva todos, luego activa solo el elegido (atomicidad con batch)
-  await db.batch([
-    db.prepare('UPDATE eventos SET activo = 0'),
-    db.prepare('UPDATE eventos SET activo = 1 WHERE id = ?').bind(id),
-  ]);
+export async function setEventoActivo(db, id, activo) {
+  return db.prepare('UPDATE eventos SET activo = ? WHERE id = ?').bind(activo ? 1 : 0, id).run();
 }
 
 // ── Tipos de entrada ─────────────────────────────────────────

@@ -2,7 +2,7 @@
 // Endpoints protegidos por Cloudflare Access (admin y portero no llegan aquí sin auth)
 
 import {
-  getEventos, getEventoById, createEvento, updateEvento, setEventoActivo,
+  getEventos, getEventoById, createEvento, updateEvento, setEventoActivo, getEventosActivos,
   getTiposEntrada, getTipoEntradaById, createTipoEntrada, updateTipoEntrada,
   createEntrada, getEntradasByEvento, getEstadisticasEvento, checkCupo,
 } from '../lib/db.js';
@@ -38,9 +38,9 @@ export async function handleAdmin(request, env, pathname) {
     const id = parseInt(eventoMatch[1]);
     const body = await parseBody(request);
 
-    // Si se activa este evento, desactivar los demás
-    if (body.activo == 1 || body.activo === true) {
-      await setEventoActivo(env.DB, id);
+    // Toggle activo sin tocar los demás eventos
+    if (body.activo !== undefined) {
+      await setEventoActivo(env.DB, id, body.activo == 1 || body.activo === true);
       delete body.activo;
     }
 
@@ -237,6 +237,12 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ deleted: id });
   }
 
+  // GET /api/admin/eventos-activos
+  if (pathname === '/api/admin/eventos-activos' && method === 'GET') {
+    const eventos = await getEventosActivos(env.DB);
+    return ok(eventos);
+  }
+
   // GET /api/admin/contactos
   if (pathname === '/api/admin/contactos' && method === 'GET') {
     const contactos = await env.DB
@@ -264,8 +270,21 @@ export async function handleAdmin(request, env, pathname) {
     return ok({ ok: true }, 201);
   }
 
-  // DELETE /api/admin/contactos/:id
+  // PUT + DELETE /api/admin/contactos/:id
   const contactoMatch = pathname.match(/^\/api\/admin\/contactos\/(\d+)$/);
+  if (contactoMatch && method === 'PUT') {
+    const id = parseInt(contactoMatch[1]);
+    const body = await parseBody(request);
+    const fields = ['nombre','apellido','mail','telefono','usuario_ig','dni']
+      .filter(k => body[k] !== undefined);
+    if (!fields.length) return err('Nada que actualizar');
+    const sets   = fields.map(k => `${k} = ?`).join(', ');
+    const values = fields.map(k => body[k]);
+    await env.DB.prepare(`UPDATE contactos SET ${sets} WHERE id = ?`)
+      .bind(...values, id).run();
+    return ok({ updated: true });
+  }
+
   if (contactoMatch && method === 'DELETE') {
     await env.DB.prepare('DELETE FROM contactos WHERE id = ?')
       .bind(parseInt(contactoMatch[1])).run();

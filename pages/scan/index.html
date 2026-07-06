@@ -490,6 +490,14 @@
           : 'Esta entrada ya fue utilizada';
         document.getElementById('r-sub').textContent = sub;
 
+      } else if (d.resultado === 'otro_dia') {
+        screen.style.background = '#2d1a00';
+        document.getElementById('r-mark').textContent  = '◷';
+        document.getElementById('r-title').textContent = 'OTRO DÍA';
+        if (e.nombre) document.getElementById('r-nombre').textContent = e.nombre;
+        if (e.tipo)   document.getElementById('r-tipo').textContent   = e.tipo;
+        document.getElementById('r-sub').textContent = d.mensaje || 'Esta entrada no corresponde a hoy';
+
       } else {
         screen.style.background = '#3d0a0a';
         document.getElementById('r-mark').textContent  = '✕';

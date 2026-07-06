@@ -635,6 +635,8 @@
         </div>
       </div>
     </div>
+      <input type="hidden" id="ct-id">
+    </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-contacto')">Cancelar</button>
       <button class="btn btn-primary" onclick="submitContacto()">Guardar</button>
@@ -1055,35 +1057,54 @@ async function submitTipo() {
 async function loadInvTab() {
   try {
     if (!Array.isArray(S.eventos) || !S.eventos.length) {
-      setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Cargando eventos…</div>Intentá de nuevo en un momento</div>');
+      const d = await apiFetch('GET', '/api/admin/eventos');
+      S.eventos = extraerArray(d, 'eventos');
+    }
+    const activos = S.eventos.filter(e => e.activo == 1 || e.active == 1);
+    if (!activos.length) {
+      setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Sin eventos activos</div>Activá al menos un evento desde la pestaña Eventos</div>');
       return;
     }
-    const activo = S.eventos.find(e => e.activo == 1 || e.active == 1);
-    if (!activo) {
-      setHtml('inv-wrap', '<div class="empty"><div class="empty-title">Sin evento activo</div>Activá un evento desde la pestaña Eventos</div>');
-      return;
+    const primero = activos[0];
+    if (!S.tiposInv.length || S._tiposInvEvId !== primero.id) {
+      const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${primero.id}`);
+      S.tiposInv = extraerArray(d, 'tipos');
+      S._tiposInvEvId = primero.id;
     }
-    if (!S.tiposInv.length || S._tiposInvEvId !== activo.id) {
-      setHtml('inv-wrap', '<div class="loading"><div class="spinner"></div><br>Cargando tipos…</div>');
-      const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${activo.id}`);
-      S.tiposInv      = extraerArray(d, 'tipos');
-      S._tiposInvEvId = activo.id;
-    }
-    S._invActivo = activo;
-    renderInvForm(activo);
+    S._invActivo = primero;
+    renderInvForm(activos);
   } catch(e) {
-    setHtml('inv-wrap', `<div class="empty"><div class="empty-title">Error al cargar el formulario</div>${esc(e.message)}</div>`);
+    setHtml('inv-wrap', `<div class="empty"><div class="empty-title">Error al cargar</div>${esc(e.message)}</div>`);
   }
 }
 
-function renderInvForm(activo) {
+async function cambiarEventoInv(eventoId) {
+  const ev = S.eventos.find(e => e.id == eventoId);
+  if (!ev) return;
+  S._invActivo = ev;
+  const d = await apiFetch('GET', `/api/admin/tipos-entrada?evento_id=${eventoId}`);
+  S.tiposInv = extraerArray(d, 'tipos');
+  S._tiposInvEvId = ev.id;
+  const sel = document.getElementById('inv-tipo');
+  if (sel) sel.innerHTML = '<option value="">— seleccionar —</option>' +
+    S.tiposInv.map(t => `<option value="${t.id}">${esc(t.nombre)}</option>`).join('');
+}
+
+function renderInvForm(activos) {
   const opcs = S.tiposInv.map(t => `<option value="${t.id}">${esc(t.nombre)}</option>`).join('');
+  const eventosOpts = activos.map(e =>
+    `<option value="${e.id}" ${e.id === S._invActivo?.id ? 'selected' : ''}>${esc(e.nombre)}</option>`
+  ).join('');
+
   document.getElementById('inv-wrap').innerHTML = `
     <div class="card">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
-        Evento activo: <strong style="color:var(--text)">${esc(activo.nombre)}</strong>
-      </div>
       <form id="form-inv" onsubmit="return false">
+        <div class="form-group">
+          <label>Evento *</label>
+          <select id="inv-evento" onchange="cambiarEventoInv(this.value)">
+            ${eventosOpts}
+          </select>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label>Nombre completo *</label>
@@ -1123,22 +1144,24 @@ function renderInvForm(activo) {
             <input id="inv-cant" type="number" min="0" max="20" value="0" oninput="renderInvitadoFields()">
           </div>
         </div>
-
         <div id="inv-invitados-wrap" style="display:none">
           <div class="form-group">
             <label>Nombres de invitados</label>
             <div class="invitados-list" id="inv-invitados"></div>
           </div>
         </div>
-
         <div class="form-group">
-          <label>Mensaje especial / notas</label>
-          <textarea id="inv-msg" placeholder="Indicaciones, notas internas…"></textarea>
+          <label>Notas internas (solo las ve el portero)</label>
+          <textarea id="inv-msg" placeholder="Pulseras rojas, zona VIP, trabaja con el fotógrafo…"></textarea>
         </div>
-
-        <button class="btn btn-primary btn-full" id="btn-inv" onclick="submitInvitacion()">
-          Generar invitación y enviar QR
-        </button>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary btn-full" id="btn-inv" onclick="submitInvitacion()">
+            Generar invitación y enviar QR
+          </button>
+          <button type="button" class="btn btn-full" id="btn-inv-guardar-contacto" onclick="submitInvitacionYGuardar()" title="Guardar como contacto y enviar">
+            + Contacto
+          </button>
+        </div>
       </form>
     </div>`;
 }
@@ -1152,9 +1175,9 @@ function renderInvitadoFields() {
     ).join('');
 }
 
-async function submitInvitacion() {
-  const cant           = parseInt(document.getElementById('inv-cant').value) || 0;
-  const detalleArr     = Array.from({length: cant}, (_,i) =>
+async function submitInvitacion(guardarContacto = false) {
+  const cant       = parseInt(document.getElementById('inv-cant').value) || 0;
+  const detalleArr = Array.from({length: cant}, (_,i) =>
     document.getElementById(`inv-inv-${i}`)?.value?.trim() || ''
   ).filter(Boolean);
 
@@ -1163,41 +1186,61 @@ async function submitInvitacion() {
   const nombre         = espacio >= 0 ? nombreCompleto.slice(0, espacio) : nombreCompleto;
   const apellido       = espacio >= 0 ? nombreCompleto.slice(espacio + 1).trim() : '-';
 
+  const mail     = document.getElementById('inv-email').value.trim();
+  const telefono = document.getElementById('inv-tel').value.trim();
+  const ig       = document.getElementById('inv-ig').value.trim();
+  const dni      = document.getElementById('inv-dni').value.trim();
+
   const body = {
-    evento_id:        S._invActivo?.id,
-    mail:             document.getElementById('inv-email').value.trim() || undefined,
-    nombre,
-    apellido,
-    telefono:         document.getElementById('inv-tel').value.trim() || undefined,
-    usuario_ig:       document.getElementById('inv-ig').value.trim() || undefined,
-    dni:              document.getElementById('inv-dni').value.trim(),
-    tipo_entrada_id:  document.getElementById('inv-tipo').value,
-    invitados_count:  cant,
+    evento_id:         S._invActivo?.id,
+    mail:              mail || undefined,
+    nombre, apellido,
+    telefono:          telefono || undefined,
+    usuario_ig:        ig || undefined,
+    dni,
+    tipo_entrada_id:   document.getElementById('inv-tipo').value,
+    invitados_count:   cant,
     invitados_detalle: detalleArr.length ? JSON.stringify(detalleArr) : undefined,
-    mensaje_especial: document.getElementById('inv-msg').value.trim() || undefined,
-    creado_por:       usuarioActual,
+    mensaje_especial:  document.getElementById('inv-msg').value.trim() || undefined,
+    creado_por:        usuarioActual,
   };
 
   if (!nombreCompleto || !body.dni || !body.tipo_entrada_id || !body.evento_id) {
     toast('Completá nombre completo, DNI y tipo de entrada', 'error');
-    if (!body.evento_id) toast('No hay evento activo — recargá la pestaña', 'error');
     return;
   }
 
-  const btn = document.getElementById('btn-inv');
-  btn.disabled = true; btn.textContent = 'Enviando…';
+  const btn  = document.getElementById('btn-inv');
+  const btn2 = document.getElementById('btn-inv-guardar-contacto');
+  btn.disabled = true;  btn.textContent  = 'Enviando…';
+  btn2.disabled = true;
 
   try {
     await apiFetch('POST', '/api/admin/invitaciones', body);
-    toast('Invitación enviada · QR generado', 'success');
+
+    if (guardarContacto) {
+      try {
+        await apiFetch('POST', '/api/admin/contactos', { nombre, apellido, mail, telefono, usuario_ig: ig, dni });
+        toast('Invitación enviada · Contacto guardado', 'success');
+      } catch(e) {
+        toast('Invitación enviada (contacto no guardado: ' + e.message + ')', 'info');
+      }
+    } else {
+      toast('Invitación enviada · QR generado', 'success');
+    }
+
     document.getElementById('form-inv').reset();
     renderInvitadoFields();
   } catch(e) {
     toast(`Error: ${e.message}`, 'error');
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generar invitación y enviar QR';
+    btn.disabled  = false; btn.textContent  = 'Generar invitación y enviar QR';
+    btn2.disabled = false;
   }
+}
+
+function submitInvitacionYGuardar() {
+  submitInvitacion(true);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1397,6 +1440,7 @@ function renderContactos() {
         </div>
         <div class="card-actions">
           <button class="btn btn-sm btn-accent" onclick="invitarContacto(${c.id})">Invitar</button>
+          <button class="btn btn-sm" onclick="editarContacto(${c.id})">Editar</button>
           <button class="btn btn-sm btn-danger" onclick="deleteContacto(${c.id})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           </button>
@@ -1405,25 +1449,48 @@ function renderContactos() {
     </div>`).join('');
 }
 
-function openContactoModal() {
+function openContactoModal(id = null) {
   ['ct-nombre','ct-apellido','ct-mail','ct-tel','ct-ig','ct-dni']
-    .forEach(id => document.getElementById(id).value = '');
+    .forEach(el => document.getElementById(el).value = '');
+  document.getElementById('ct-id').value = '';
+  document.querySelector('#modal-contacto .modal-title').textContent = id ? 'Editar Contacto' : 'Nuevo Contacto';
+  if (id) {
+    const c = contactos.find(x => x.id === id);
+    if (c) {
+      document.getElementById('ct-nombre').value   = c.nombre || '';
+      document.getElementById('ct-apellido').value = c.apellido || '';
+      document.getElementById('ct-mail').value     = c.mail || '';
+      document.getElementById('ct-tel').value      = c.telefono || '';
+      document.getElementById('ct-ig').value       = c.usuario_ig || '';
+      document.getElementById('ct-dni').value      = c.dni || '';
+      document.getElementById('ct-id').value       = c.id;
+    }
+  }
   openModal('modal-contacto');
 }
+
+function editarContacto(id) { openContactoModal(id); }
 
 async function submitContacto() {
   const nombre   = document.getElementById('ct-nombre').value.trim();
   const apellido = document.getElementById('ct-apellido').value.trim();
   if (!nombre || !apellido) { toast('Nombre y apellido son requeridos', 'error'); return; }
+  const id = document.getElementById('ct-id').value;
   try {
-    await apiFetch('POST', '/api/admin/contactos', {
+    const data = {
       nombre, apellido,
       mail:       document.getElementById('ct-mail').value.trim(),
       telefono:   document.getElementById('ct-tel').value.trim(),
       usuario_ig: document.getElementById('ct-ig').value.trim(),
       dni:        document.getElementById('ct-dni').value.trim(),
-    });
-    toast('Contacto guardado', 'success');
+    };
+    if (id) {
+      await apiFetch('PUT', `/api/admin/contactos/${id}`, data);
+      toast('Contacto actualizado', 'success');
+    } else {
+      await apiFetch('POST', '/api/admin/contactos', data);
+      toast('Contacto guardado', 'success');
+    }
     closeModal('modal-contacto');
     await loadContactos();
   } catch(e) {

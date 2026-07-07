@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cómo se usa — Condesa Mansión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #333333;
+      --surface: #2b2b2b;
+      --surface2:#222222;
+      --text:    #f1f1f1;
+      --muted:   #888888;
+      --border:  #4a4a4a;
+      --accent:  #ffff00;
+      --green:   #4caf7d;
+      --blue:    #5b8dee;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .nav-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .nav-sub {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 24px 56px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: clamp(32px, 6vw, 56px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .hero-title span { color: var(--accent); }
+    .hero-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      line-height: 1.8;
+    }
+
+    /* ── INDEX ── */
+    .index {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .index-link {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      transition: color .15s, border-color .15s;
+    }
+    .index-link:hover { color: var(--text); border-color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── SECCIÓN ── */
+    .section {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-number {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    /* ── PROSE ── */
+    p { margin-bottom: 16px; color: rgba(241,241,241,.85); }
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--text); font-weight: 700; }
+
+    /* ── STEPS ── */
+    .steps { margin: 24px 0; }
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: #222;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── TIPS ── */
+    .tip {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: rgba(241,241,241,.8);
+      line-height: 1.6;
+    }
+    .tip strong { color: var(--accent); }
+
+    .tip-blue {
+      border-left-color: var(--blue);
+    }
+    .tip-blue strong { color: var(--blue); }
+
+    .tip-green {
+      border-left-color: var(--green);
+    }
+    .tip-green strong { color: var(--green); }
+
+    /* ── TAGS ── */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      margin: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .tag-yellow { background: rgba(255,255,0,.08); border-color: rgba(255,255,0,.3); color: var(--accent); }
+    .tag-green  { background: rgba(76,175,125,.08); border-color: rgba(76,175,125,.3); color: var(--green); }
+    .tag-blue   { background: rgba(91,141,238,.08); border-color: rgba(91,141,238,.3); color: var(--blue); }
+
+    /* ── TABLE ── */
+    .tabla {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+    .tabla th {
+      background: var(--surface);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabla td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(74,74,74,.4);
+      vertical-align: top;
+      color: rgba(241,241,241,.8);
+    }
+    .tabla td:first-child { font-weight: 600; color: var(--text); }
+
+    /* ── SCREEN MOCKUP ── */
+    .screen {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin: 24px 0;
+      font-size: 13px;
+    }
+    .screen-bar {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .screen-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(74,74,74,.3);
+      gap: 12px;
+    }
+    .screen-row:last-child { border-bottom: none; }
+    .screen-label { color: var(--muted); font-size: 12px; }
+    .screen-val { font-weight: 600; font-size: 13px; }
+    .badge-valido  { color: var(--green); }
+    .badge-usado   { color: var(--muted); }
+    .badge-pendiente { color: #f0ad4e; }
+
+    /* ── SEMAFORO ── */
+    .semaforo { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+    .sem-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+    }
+    .sem-color {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .sem-titulo { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .sem-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer p { font-size: 12px; color: #555; margin-bottom: 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .nav { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .step { flex-direction: column; gap: 8px; }
+      .step-num { margin-top: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-title">Condesa Mansión — Manual del equipo</div>
+  <div class="nav-sub">condesamansion.com.ar/gestion-interna</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Guía completa</div>
+  <h1 class="hero-title">Cómo se usa el<br><span>sistema de entradas</span></h1>
+  <p class="hero-desc">Todo lo que necesitás saber para manejar eventos, invitaciones, portería y la página del boliche. Leelo una vez y ya sabés todo.</p>
+  <nav class="index">
+    <a class="index-link" href="#login">Login</a>
+    <a class="index-link" href="#eventos">Eventos</a>
+    <a class="index-link" href="#tipos">Tipos de entrada</a>
+    <a class="index-link" href="#invitaciones">Invitaciones</a>
+    <a class="index-link" href="#contactos">Contactos</a>
+    <a class="index-link" href="#asistentes">Asistentes</a>
+    <a class="index-link" href="#landing">Landing</a>
+    <a class="index-link" href="#scan">Portería</a>
+    <a class="index-link" href="#imagenes">Imágenes</a>
+  </nav>
+</div>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <section class="section" id="login">
+    <div class="section-number">01</div>
+    <h2 class="section-title">Cómo entrar al panel</h2>
+    <p>El panel de administración está en <strong>condesamansion.com.ar/gestion-interna</strong>. No es una URL pública — la tiene el equipo.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Elegí tu nombre en el desplegable</div>
+          <div class="step-desc">Aparecen los nombres del equipo. Elegí el tuyo — esto queda registrado en las entradas que generes (quién la creó).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Ingresá la contraseña</div>
+          <div class="step-desc">La contraseña es compartida por todo el equipo. Si no la sabés, pedísela a Santi.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">El panel se abre con cuatro pestañas</div>
+          <div class="step-desc">Eventos / Tipos de Entrada / Invitaciones / Contactos / Asistentes / Landing. Cada una tiene su función.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip">
+      <strong>Importante:</strong> el panel recuerda tu usuario en el navegador. La próxima vez que entres, ya estás logueado automáticamente.
+    </div>
+  </section>
+
+  <!-- EVENTOS -->
+  <section class="section" id="eventos">
+    <div class="section-number">02</div>
+    <h2 class="section-title">Eventos</h2>
+    <p>Un evento es cada fecha del boliche. Podés tener varios cargados al mismo tiempo — los activos se pueden comprar desde la web, los inactivos se muestran como "Próximamente".</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Crear un evento nuevo</div>
+          <div class="step-desc">Click en "+ Nuevo evento". Completá nombre, fecha, hora y descripción. El flyer lo podés subir después.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Subir el flyer</div>
+          <div class="step-desc">En el formulario del evento hay un campo de imagen. Subí el flyer del evento. Se va a mostrar en la página del evento cuando alguien haga click en "Más info".</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Activar o desactivar</div>
+          <div class="step-desc">El botón "Activar" hace que el evento aparezca en la web con la opción de comprar entradas. "Desactivar" lo pone en modo "Próximamente". Podés tener más de un evento activo al mismo tiempo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip tip-blue">
+      <strong>Orden:</strong> los eventos se muestran ordenados por fecha, del más próximo al más lejano. No importa el orden en que los cargues.
+    </div>
+
+    <div class="tip">
+      <strong>Antes de activar un evento</strong> asegurate de tener al menos un Tipo de Entrada configurado. Sin tipos de entrada, la gente no puede comprar nada.
+    </div>
+  </section>
+
+  <!-- TIPOS DE ENTRADA -->
+  <section class="section" id="tipos">
+    <div class="section-number">03</div>
+    <h2 class="section-title">Tipos de entrada</h2>
+    <p>Los tipos de entrada son las categorías de tickets de cada evento. Por ejemplo: <strong>General</strong>, <strong>VIP</strong>, <strong>General con consumición</strong>. Cada tipo tiene su precio, beneficios y cupo.</p>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Campo</th>
+          <th>Para qué sirve</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nombre</td>
+          <td>Lo que ve el cliente: "General", "VIP", "Lista anticipada", etc.</td>
+        </tr>
+        <tr>
+          <td>Precio</td>
+          <td>En pesos. Si ponés 0, es gratis (solo se puede generar desde el panel, no desde la web pública).</td>
+        </tr>
+        <tr>
+          <td>Beneficios</td>
+          <td>Texto descriptivo que se muestra al cliente: "Consumición incluida", "Acceso VIP zona", etc.</td>
+        </tr>
+        <tr>
+          <td>Cupo máximo</td>
+          <td>Si lo ponés, el sistema deja de vender cuando se agota. Si lo dejás en 0, no hay límite.</td>
+        </tr>
+        <tr>
+          <td>Visible al público</td>
+          <td>Si está desmarcado, el tipo de entrada no aparece en la web. Útil para tipos internos (admin only).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="tip">
+      <strong>Tip:</strong> los tipos con precio 0 y visibilidad pública no aparecen en la web de compra. Las entradas gratuitas solo se generan desde el panel de Invitaciones.
+    </div>
+  </section>
+
+  <!-- INVITACIONES -->
+  <section class="section" id="invitaciones">
+    <div class="section-number">04</div>
+    <h2 class="section-title">Invitaciones</h2>
+    <p>Las invitaciones son entradas <strong>gratuitas generadas por el equipo</strong>. Cuando generás una invitación, el sistema crea un código QR único y se lo manda por mail al invitado.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Elegí el evento</div>
+          <div class="step-desc">El selector muestra todos los eventos activos. Si tenés más de uno activo, elegís a cuál corresponde la invitación.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Completá los datos del titular</div>
+          <div class="step-desc">Nombre completo y DNI son obligatorios. El mail es necesario para enviarle el QR. Teléfono e Instagram son opcionales pero útiles para el portero.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Elegí el tipo de entrada</div>
+          <div class="step-desc">Seleccioná la categoría que corresponde: General, VIP, etc.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Invitados adicionales (opcional)</div>
+          <div class="step-desc">Si la persona entra con acompañantes, ponés la cantidad y los nombres. El portero va a ver cuántas personas ingresan con esa entrada y quiénes son.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Notas internas (opcional)</div>
+          <div class="step-desc">Las notas <strong>no las ve el invitado</strong>. Las ve el portero cuando escanea el QR. Usalas para instrucciones: "pulsera verde", "acceso VIP zona", "trabaja con el fotógrafo".</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-title">Generar y enviar</div>
+          <div class="step-desc">Al hacer click, se crea la entrada, se genera el QR y se manda el mail automáticamente. Si querés guardar a la persona como contacto para la próxima, usá el botón "+ Contacto".</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip tip-green">
+      <strong>¿Para qué sirven los invitados de los invitados?</strong> Cuando alguien entra con acompañantes, todos ingresan con el mismo QR. El portero ve el nombre del titular y los nombres de los acompañantes. Un QR = un grupo. Si el titular entra solo y después vienen los acompañantes sin él, no pueden entrar.
+    </div>
+
+    <div class="tip">
+      <strong>El QR es de uso único.</strong> Una vez escaneado en la puerta, no se puede usar de nuevo. Si hay algún problema, el portero puede ver si ya fue usado y a qué hora.
+    </div>
+  </section>
+
+  <!-- CONTACTOS -->
+  <section class="section" id="contactos">
+    <div class="section-number">05</div>
+    <h2 class="section-title">Contactos</h2>
+    <p>Los contactos son personas frecuentes a las que invitás seguido. En vez de escribir todos sus datos cada vez, los guardás una vez y los usás siempre.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Crear un contacto</div>
+          <div class="step-desc">Click en "+ Nuevo contacto". Nombre, apellido, mail y DNI son obligatorios. Teléfono e Instagram son opcionales.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Invitar desde contactos</div>
+          <div class="step-desc">Al hacer click en "Invitar", el sistema lleva al formulario de invitaciones con todos los datos ya cargados. Solo tenés que elegir el tipo de entrada y agregar notas si querés.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Editar o eliminar</div>
+          <div class="step-desc">Si cambia el mail o el teléfono de alguien, podés editarlo. Si ya no lo usás, lo eliminás.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip tip-blue">
+      <strong>Ahorro de tiempo:</strong> cuando generás una invitación, el botón "+ Contacto" guarda automáticamente a la persona en la lista de contactos para la próxima vez.
+    </div>
+  </section>
+
+  <!-- ASISTENTES -->
+  <section class="section" id="asistentes">
+    <div class="section-number">06</div>
+    <h2 class="section-title">Asistentes</h2>
+    <p>La pestaña Asistentes es el registro completo de todas las entradas de un evento. Podés ver en tiempo real quién tiene entrada, quién ya ingresó y quién todavía no.</p>
+
+    <div class="screen">
+      <div class="screen-bar">Vista de asistentes — ejemplo</div>
+      <div class="screen-row">
+        <span class="screen-label">Total de entradas</span>
+        <span class="screen-val">47</span>
+      </div>
+      <div class="screen-row">
+        <span class="screen-label">Válidas (no usadas todavía)</span>
+        <span class="screen-val badge-valido">32</span>
+      </div>
+      <div class="screen-row">
+        <span class="screen-label">Usadas (ya ingresaron)</span>
+        <span class="screen-val badge-usado">12</span>
+      </div>
+      <div class="screen-row">
+        <span class="screen-label">Pendientes de pago</span>
+        <span class="screen-val badge-pendiente">3</span>
+      </div>
+    </div>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Columna</th>
+          <th>Qué significa</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nombre</td>
+          <td>El titular de la entrada.</td>
+        </tr>
+        <tr>
+          <td>Tipo</td>
+          <td>General, VIP, etc.</td>
+        </tr>
+        <tr>
+          <td>Estado</td>
+          <td><span class="tag tag-green">Válida</span> todavía no ingresó. <span class="tag">Usada</span> ya ingresó. <span class="tag tag-yellow">Pendiente</span> pagó pero no se confirmó.</td>
+        </tr>
+        <tr>
+          <td>Origen</td>
+          <td><span class="tag tag-blue">Admin</span> la generó el equipo. <span class="tag">Cliente</span> la compró desde la web.</td>
+        </tr>
+        <tr>
+          <td>Invitados</td>
+          <td>Cantidad de acompañantes que entran con esa entrada.</td>
+        </tr>
+        <tr>
+          <td>Creado por</td>
+          <td>Qué miembro del equipo generó la entrada (solo para las de admin).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Podés filtrar por tipo, estado u origen para ver solo lo que necesitás. También podés <strong>exportar a CSV</strong> para llevar el listado a Excel.</p>
+
+    <div class="tip">
+      <strong>Para auditar:</strong> la columna "Creado por" te dice quién generó cada invitación. Así sabés si fue Carla, Gonza o cualquier otro del equipo.
+    </div>
+  </section>
+
+  <!-- LANDING -->
+  <section class="section" id="landing">
+    <div class="section-number">07</div>
+    <h2 class="section-title">Landing — La página del boliche</h2>
+    <p>La pestaña Landing del panel controla todo lo que se ve en <strong>condesamansion.com.ar</strong>. Desde la foto de portada hasta las promos vigentes.</p>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Sección</th>
+          <th>Qué es y cómo se cambia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Foto Hero Desktop</td>
+          <td>La foto de fondo que se ve en computadora. Subís una imagen horizontal (paisaje). Recomendado: mínimo 1400px de ancho.</td>
+        </tr>
+        <tr>
+          <td>Foto Hero Mobile</td>
+          <td>La foto de fondo que se ve en el celular. Subís una imagen vertical (retrato). Recomendado: mínimo 800x1200px.</td>
+        </tr>
+        <tr>
+          <td>WhatsApp de contacto</td>
+          <td>El número al que llegan las consultas de promos. Formato sin + ni espacios: 5493584123456.</td>
+        </tr>
+        <tr>
+          <td>Álbumes de fotos</td>
+          <td>Pegás el link de un álbum público de Google Photos y aparece automáticamente en la página de Fotos con su portada y nombre.</td>
+        </tr>
+        <tr>
+          <td>Promos</td>
+          <td>Podés agregar promos con nombre, descripción e imagen. Si activás WhatsApp, la promo tiene un botón verde para consultar directo. Podés ordenarlas con las flechas ↑↓.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="tip tip-green">
+      <strong>La carta de bebidas</strong> se actualiza automáticamente desde Google Sheets. No hay que tocar nada desde el panel — cuando cambian los precios en el Sheet, se refleja solo en la web.
+    </div>
+  </section>
+
+  <!-- SCAN / PORTERÍA -->
+  <section class="section" id="scan">
+    <div class="section-number">08</div>
+    <h2 class="section-title">Portería — Escáner de QR</h2>
+    <p>El portero no necesita instalar nada. Solo abre <strong>condesamansion.com.ar/scan</strong> en su celular, toca "Escanear QR" y apunta la cámara al código del cliente.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">El cliente muestra el QR</div>
+          <div class="step-desc">Puede mostrarlo desde el mail, o haberlo guardado en la galería del celular. El QR es una imagen — no necesita internet para mostrarlo.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">El portero escanea</div>
+          <div class="step-desc">La app del celular detecta el QR automáticamente. En menos de un segundo aparece el resultado.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">El portero ve el resultado</div>
+          <div class="step-desc">Pantalla verde, amarilla o roja según el caso. Ver detalle abajo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="semaforo">
+      <div class="sem-item" style="background:#0a3d1f;border-color:#1a5c35">
+        <div class="sem-color" style="background:#4caf7d"></div>
+        <div>
+          <div class="sem-titulo" style="color:#4caf7d">✓ VÁLIDO</div>
+          <div class="sem-desc">La entrada es correcta y corresponde a hoy. El portero ve: nombre del titular, tipo de entrada, cantidad de personas, nombres de acompañantes, teléfono, IG y notas internas. La entrada se marca como usada automáticamente.</div>
+        </div>
+      </div>
+      <div class="sem-item" style="background:#3d3000;border-color:#5c4800">
+        <div class="sem-color" style="background:#f0ad4e"></div>
+        <div>
+          <div class="sem-titulo" style="color:#f0ad4e">⚠ YA USADA</div>
+          <div class="sem-desc">Esta entrada ya fue escaneada antes. Se muestra la hora en que ingresó. No se puede usar de nuevo.</div>
+        </div>
+      </div>
+      <div class="sem-item" style="background:#2d1a00;border-color:#4a2e00">
+        <div class="sem-color" style="background:#ff9800"></div>
+        <div>
+          <div class="sem-titulo" style="color:#ff9800">◷ OTRO DÍA</div>
+          <div class="sem-desc">La entrada existe y es válida, pero corresponde a otra fecha. No se marca como usada — el cliente puede usarla en la fecha correcta.</div>
+        </div>
+      </div>
+      <div class="sem-item" style="background:#3d0a0a;border-color:#5c1515">
+        <div class="sem-color" style="background:#e05252"></div>
+        <div>
+          <div class="sem-titulo" style="color:#e05252">✕ INVÁLIDO</div>
+          <div class="sem-desc">El QR no existe en el sistema, el pago no fue confirmado, o hubo un error de red. No dejar pasar.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Si hay error de red:</strong> el resultado puede tardar un segundo más. Si aparece "Error de red", el portero puede intentar de nuevo. La entrada NO se marca como usada si la respuesta no llegó.
+    </div>
+
+    <div class="tip tip-blue">
+      <strong>Las notas en amarillo</strong> que aparecen abajo del resultado son las notas internas que cargaste al generar la invitación. Solo las ve el portero, nunca el cliente.
+    </div>
+  </section>
+
+  <!-- IMÁGENES -->
+  <section class="section" id="imagenes">
+    <div class="section-number">09</div>
+    <h2 class="section-title">Imágenes — cómo optimizarlas</h2>
+    <p>Las imágenes grandes hacen que la página cargue lento. Seguí estas reglas antes de subir cualquier foto.</p>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Formato</th>
+          <th>Peso máximo</th>
+          <th>Dimensiones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hero desktop</td>
+          <td>JPG</td>
+          <td>500 KB</td>
+          <td>1400 × 800 px mínimo</td>
+        </tr>
+        <tr>
+          <td>Hero mobile</td>
+          <td>JPG</td>
+          <td>300 KB</td>
+          <td>800 × 1200 px mínimo</td>
+        </tr>
+        <tr>
+          <td>Flyer de evento</td>
+          <td>JPG o PNG</td>
+          <td>400 KB</td>
+          <td>800 × 1200 px (3:4)</td>
+        </tr>
+        <tr>
+          <td>Imagen de promo</td>
+          <td>JPG o PNG</td>
+          <td>300 KB</td>
+          <td>Cualquiera, preferible horizontal</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Usá squoosh.app para comprimir</div>
+          <div class="step-desc">Entrá a squoosh.app, arrastrá la imagen, elegí formato WebP o JPG y bajá la calidad hasta que el peso sea el correcto. Es gratis y funciona en el navegador.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">JPG para fotos, PNG solo si tiene transparencia</div>
+          <div class="step-desc">Los flyers y fotos del boliche van siempre en JPG. PNG pesa el doble sin ninguna ventaja visible para fotos.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">No subas screenshots de Instagram</div>
+          <div class="step-desc">Las capturas de pantalla tienen resolución baja y se ven pixeladas. Pedí siempre el archivo original al diseñador.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip tip-green">
+      <strong>Regla simple:</strong> si la imagen pesa más de 500 KB, la comprimís antes de subir. Punto.
+    </div>
+  </section>
+
+  <!-- QR -->
+  <section class="section" id="qr">
+    <div class="section-number">10</div>
+    <h2 class="section-title">Cómo acceder al QR</h2>
+    <p>Cada entrada tiene un QR único. Hay dos formas de que llegue al cliente o al portero:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">A</div>
+        <div class="step-body">
+          <div class="step-title">Por mail (automático)</div>
+          <div class="step-desc">Cuando generás una invitación o se confirma un pago, el QR llega al mail del titular automáticamente. El mail tiene el QR visible en el cuerpo, con todos los datos de la entrada.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">B</div>
+        <div class="step-body">
+          <div class="step-title">Guardado en la galería del celular</div>
+          <div class="step-desc">El cliente puede mantener presionado el QR en el mail y guardarlo como imagen. Así puede mostrarlo en la puerta sin tener datos móviles.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Si alguien no recibió el mail:</strong> revisá en Asistentes que la entrada exista y esté en estado "Válida". Si existe, el mail se mandó — decile que revise spam o correo no deseado.
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>Condesa Mansión · Sistema de entradas</p>
+  <p>Para consultas técnicas, hablá con Santi.</p>
+</footer>
+
+</body>
+</html>
